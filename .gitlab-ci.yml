@@ -1,0 +1,13 @@
+image: "flowdalic/debian-dev:1.4"
+
+before_script:
+  - apt update
+
+test:
+  script:
+    - |
+      cd tests
+      touch cweb-latex/disable
+      touch graphicx-dotted-files/disable
+      touch pythontex/disable
+      ./run.sh --debchroot *

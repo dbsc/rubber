@@ -281,7 +281,7 @@ def main (command_name):
     try:
         options = parse_opts (command_name)
 
-        msg.debug(f"This is Rubber version ${RUBBER_VERSION}.")
+        msg.debug(_("This is Rubber version %s.") % RUBBER_VERSION)
 
         if command_name == RUBBER_PIPE:
             # Generate a temporary source file, and pretend it has

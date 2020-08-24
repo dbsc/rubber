@@ -5,6 +5,7 @@ before_script:
 
 build:
   script:
+    - apt-get install -y texinfo
     - make build
 
 test:

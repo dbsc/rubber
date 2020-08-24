@@ -1,24 +1,16 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # really basic test driver
 # copy the rubber source, and the test case data to a temporary
 # directory, and run rubber on the file.
 
-SOURCE_DIR="$(cd ..; pwd)"
-tmpdir=tmp
-python=python3
-
 set -e                          # Stop at first failure.
 
-KEEP=false
 VERBOSE=
 while [ 1 -le $# ]; do
     case $1 in
-        --rmtmp)
-            rm -rf $tmpdir
-            ;;
-        -k)
-            KEEP=true
-            ;;
+		-d)
+			set -x
+			;;
         -v|-vv|-vvv)
             VERBOSE="$VERBOSE $1"
             ;;
@@ -40,12 +32,16 @@ while [ 1 -le $# ]; do
     shift
 done
 
+SOURCE_DIR="$(cd ..; pwd)"
+printf -v DATE '%(%Y%m%d)T' -1
+tmpdir=$(mktemp --tmpdir="/var/tmp" --directory "rubber-${DATE}-XXXXXX")
+python=python3
+
 echo "When a test fails, please remove the $tmpdir directory manually."
 
 # Copy source directory, because we must patch version.py and python
 # will attempt to write precompiled *.pyc sources.  For efficiency,
 # we share these temporary files among tests.
-mkdir $tmpdir
 cp -a "$SOURCE_DIR/rubber" $tmpdir/rubber
 sed "s%@version@%unreleased%;s%@moddir@%$SOURCE_DIR/data%" \
     $tmpdir/rubber/version.py.in > $tmpdir/rubber/version.py
@@ -56,7 +52,7 @@ done
 
 for main; do
     case "$main" in
-        run.sh | shared | $tmpdir)
+        run.sh | shared)
             continue;;
     esac
 
@@ -94,11 +90,6 @@ for main; do
         $python ../rubber.py $VERBOSE $arguments "$doc"
     fi
 
-    if $KEEP; then
-        echo "Keeping $tmpdir/$main."
-        exit 1
-    fi
-
     ([ -r expected ] && cat expected ) | while read f; do
         [ -e "$f" ] || {
             echo "Expected file $f was not produced."
@@ -114,7 +105,7 @@ for main; do
 
     unset doc arguments
 
-    cd ../..
+    cd "${SOURCE_DIR}/tests"
 
     for before in $main/* shared/*; do
         after=$tmpdir/$main/${before##*/}

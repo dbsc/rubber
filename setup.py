@@ -90,7 +90,7 @@ class build (distutils.command.build.build):
 
     def run (self):
         subs = {}
-        for v in ("author", "author_email", "url", "version"):
+        for v in ("author", "author_email", "maintainer", "maintainer_email", "url", "version"):
             subs [v] = getattr (self.distribution.metadata, "get_"+v) ()
         self.generate_files_with_substitutions (subs)
 

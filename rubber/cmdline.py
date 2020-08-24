@@ -222,9 +222,6 @@ def parse_opts (command_name):
 
     args = parser.parse_args ()
 
-    if args.jobname is not None and 1 < len (args.source):
-        raise rubber.SyntaxError (_('--jobname requires at most one source'))
-
     if command_name == RUBBER_PLAIN and args.clean \
        and (args.warn_boxes or args.warn_refs or args.warn_misc):
         raise rubber.Syntaxerror ('incompatible options: --clean and --warn')

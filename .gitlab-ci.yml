@@ -3,6 +3,10 @@ image: "flowdalic/debian-dev:1.4"
 before_script:
   - apt update
 
+build:
+  script:
+    - python3 ./setup.py build
+
 test:
   script:
     - |

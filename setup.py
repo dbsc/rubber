@@ -213,6 +213,8 @@ Metapost compilation).\
 """,
     author = 'Sebastian Kapfer',
     author_email = 'sebastian.kapfer@fau.de',
+    maintainer = 'Florian Schmaus',
+    maintainer_email = 'flo@geekplace.eu',
     url = 'https://gitlab.com/latex-rubber/rubber',
     license = "GPL",
     packages = (

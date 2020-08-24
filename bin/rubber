@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 # (c) Sebastian Kapfer, 2015
 # vim: et:ts=4
+
+from pathlib import Path
+
+RUBBER_BIN_DIR = Path(__file__).parent.absolute()
+POTENTIAL_RUBBER_MODULE_DIR = Path(RUBBER_BIN_DIR.parent / 'rubber')
+if Path(POTENTIAL_RUBBER_MODULE_DIR / '__init__.py').is_file():
+    print(f"Rubber invoked from VCS, prepending {POTENTIAL_RUBBER_MODULE_DIR} to sys.path")
+    import sys
+    sys.path.insert(0, POTENTIAL_RUBBER_MODULE_DIR)
+
 import rubber.cmdline
 rubber.cmdline.main (command_name = rubber.cmdline.RUBBER_PLAIN)

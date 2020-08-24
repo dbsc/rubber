@@ -21,7 +21,12 @@ from rubber.util import _
 import logging
 msg = logging.getLogger (__name__)
 import rubber.util
-import rubber.version
+
+try:
+    import rubber.version
+    RUBBER_VERSION=rubber.version.version
+except ImportError:
+    RUBBER_VERSION="unknown"
 
 # The expected entry point is the main procedure, with one of these
 # three values to track the command name (which may differ from
@@ -193,7 +198,7 @@ def parse_opts (command_name):
         help='increase verbosity (may be repeated)')
 
     parser.add_argument ('--version', action='version',
-        version='%(prog)s ' + rubber.version.version)
+        version='%(prog)s ' + RUBBER_VERSION)
 
     warn_values = ('all', 'boxes', 'misc', 'refs')
     class WarnAction (argparse.Action):
@@ -276,7 +281,7 @@ def main (command_name):
     try:
         options = parse_opts (command_name)
 
-        msg.debug (_("This is Rubber version %s.") % rubber.version.version)
+        msg.debug(f"This is Rubber version ${RUBBER_VERSION}.")
 
         if command_name == RUBBER_PIPE:
             # Generate a temporary source file, and pretend it has

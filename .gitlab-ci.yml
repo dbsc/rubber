@@ -1,7 +1,12 @@
-image: "flowdalic/debian-dev:1.4"
+image: "flowdalic/debian-dev:1.6"
 
 before_script:
   - apt update
+
+build:
+  script:
+    - apt-get install -y texinfo
+    - make build
 
 test:
   script:

@@ -39,12 +39,10 @@ python=python3
 
 echo "When a test fails, please remove the $tmpdir directory manually."
 
-# Copy source directory, because we must patch version.py and python
+# Copy source directory, because python
 # will attempt to write precompiled *.pyc sources.  For efficiency,
 # we share these temporary files among tests.
 cp -a "$SOURCE_DIR/rubber" $tmpdir/rubber
-sed "s%@version@%unreleased%;s%@moddir@%$SOURCE_DIR/data%" \
-    $tmpdir/rubber/version.py.in > $tmpdir/rubber/version.py
 # Also rename rubber to rubber.py to avoid a clash with rubber/.
 for exe in rubber rubber-info rubber-pipe; do
     cp "$SOURCE_DIR/bin/$exe" $tmpdir/$exe.py

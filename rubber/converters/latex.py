@@ -1199,11 +1199,19 @@ class LaTeXDep (rubber.depend.Node):
         else:
             inputs = inputs + ":" + os.getenv("TEXINPUTS", "")
             env = {"TEXINPUTS": inputs}
-        if rubber.util.execute (cmd, env=env) != 0:
+
+        exit_code = rubber.util.execute (cmd, env=env)
+
+        # Call parse_log() even though we may already know that the
+        # command failed due a non-zero exit code. This ensures that
+        # parse_log() is able to get a detailed error description from
+        # the logs.
+        log_could_be_parsed = self.parse_log ()
+
+        if exit_code != 0:
             msg.error(_("Running %s resulted in a non-zero exit status."), cmd [0])
             return False
-
-        if not self.parse_log ():
+        if not log_could_be_parsed:
             msg.error(_("Running %s failed.") % cmd[0])
             return False
         if self.log.errors():

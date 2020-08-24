@@ -113,8 +113,9 @@ Rubber tries to err on the side of caution here.
 * Author
 
 Rubber was originally written by Emmanuel Beffara <emmanuel@beffara.org>.
-It is currently maintained by Florian Schmaus <flo@geekplace>, Sebastian Kapfer <sebastian.kapfer@fau.de>
-and Nicolas Boulenguez <nicolas@debian.org>.
+It is currently maintained by Florian Schmaus <flo@geekplace.eu>,
+Sebastian Kapfer <sebastian.kapfer@fau.de> and Nicolas Boulenguez
+<nicolas@debian.org>.
 
 Its homepage can be found at https://gitlab.com/latex-rubber/rubber
 

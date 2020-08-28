@@ -190,16 +190,19 @@ class tar (distutils.cmd.Command):
                      "--prefix=rubber-" + version + "/",
                      "--output=rubber-" + version + "." + self.extension))
 
-def extract_version_from_first_line (news, pattern):
-    with open (news, "r") as f:
-        line = f.readline ()
-    match = re.match (pattern, line)
+def extract_version ():
+    with open ("NEWS", "r") as f:
+        while True:
+            line = f.readline ()
+            if line.startswith ("Version"):
+                break
+    match = re.match (r'^Version ([0-9.]+) ', line)
     assert match, "Line 1 of " + news + " does not match '" + pattern + "'."
     return match.group (1)
 
 distutils.core.setup (
     name = "rubber",
-    version = extract_version_from_first_line ("NEWS", r'^Version ([0-9.]+) '),
+    version = extract_version (),
     description = "an automated system for building LaTeX documents",
     long_description = """\
 This is a building system for LaTeX documents. It is based on a routine that

@@ -6,13 +6,14 @@ rule management.
 import re, imp, os.path
 from configparser import ConfigParser
 import logging
-msg = logging.getLogger (__name__)
+msg = logging.getLogger(__name__)
 from rubber.util import _
 import rubber.converters
 
 re_variable = re.compile('[a-zA-Z]+')
 
-def expand_cases (string, vars):
+
+def expand_cases(string, vars):
     """
     Expand variables and cases in a template string. Variables must occur as
     $VAR (with only letters in the name) or ${VAR}, their values are taken
@@ -24,10 +25,10 @@ def expand_cases (string, vars):
     string and 'pos' is the position of the first unbalanced "}" or the end of
     the string.
     """
-    pos = 0   # current position
-    start = 0   # starting point of the current chunk
-    cases = []   # possible expansions from previous cases
-    current = ['']   # possible values for the current case, up to 'start'
+    pos = 0  # current position
+    start = 0  # starting point of the current chunk
+    cases = []  # possible expansions from previous cases
+    current = ['']  # possible values for the current case, up to 'start'
 
     while pos < len(string):
 
@@ -56,14 +57,14 @@ def expand_cases (string, vars):
                 end = string.find('}', pos + 2)
                 if end < 0:
                     end = len(string)
-                name = string[pos+2:end]
+                name = string[pos + 2:end]
                 suffix = string[start:pos]
                 if name in vars:
                     suffix += vars[name]
                 current = [s + suffix for s in current]
                 start = pos = end + 1
             elif string[pos + 1] == '$':
-                suffix = string[start:pos+1]
+                suffix = string[start:pos + 1]
                 current = [s + suffix for s in current]
                 start = pos = pos + 2
             else:
@@ -84,7 +85,8 @@ def expand_cases (string, vars):
     suffix = string[start:]
     return cases + [s + suffix for s in current], pos
 
-class Converter (object):
+
+class Converter(object):
     """
     This class represents a set of translation rules that may be used to
     produce input files. Objects contain a table of rewriting rules to deduce
@@ -105,7 +107,8 @@ class Converter (object):
         Produce a dependency node to produce 'target' from
         'source', using settings from the environment 'env'.
     """
-    def __init__ (self, env):
+
+    def __init__(self, env):
         """
         Initialize the converter, associated with a given dependency set, with
         an empty set of rules.
@@ -114,7 +117,7 @@ class Converter (object):
         self.modules = {}
         self.rules = []
 
-    def read_ini (self, filename):
+    def read_ini(self, filename):
         """
         Read a set of rules from a file. The file has the form of an INI file,
         each section describes a rule.
@@ -123,31 +126,31 @@ class Converter (object):
         try:
             cp.read(filename)
         except ParsingError:
-            msg.error (rubber.util._format ({'file':filename}, _("parse error, ignoring it")))
+            msg.error(rubber.util._format({'file': filename}, _("parse error, ignoring it")))
             return
         for name in cp.sections():
-            dict = { 'name': name }
+            dict = {'name': name}
             for key in cp.options(name):
                 dict[key] = cp.get(name, key)
             try:
                 dict['cost'] = cp.getint(name, 'cost')
             except NoOptionError:
-                msg.warning (rubber.util._format ({'file':filename}, _("ignoring rule `%s' (no cost found)") % name))
+                msg.warning(rubber.util._format({'file': filename}, _("ignoring rule `%s' (no cost found)") % name))
                 continue
             except ValueError:
-                msg.warning (rubber.util._format ({'file':filename}, _("ignoring rule `%s' (invalid cost)") % name))
+                msg.warning(rubber.util._format({'file': filename}, _("ignoring rule `%s' (invalid cost)") % name))
                 continue
             if 'target' not in dict:
-                msg.warning (rubber.util._format ({'file':filename}, _("ignoring rule `%s' (no target found)") % name))
+                msg.warning(rubber.util._format({'file': filename}, _("ignoring rule `%s' (no target found)") % name))
                 continue
             if 'rule' not in dict:
-                msg.warning (rubber.util._format ({'file':filename}, _("ignoring rule `%s' (no module found)") % name))
+                msg.warning(rubber.util._format({'file': filename}, _("ignoring rule `%s' (no module found)") % name))
             if not self.load_module(dict['rule']):
-                msg.warning (rubber.util._format ({'file':filename}, _("ignoring rule `%s' (module `%s' not found)") % (name, dict['rule'])))
-            dict ["re_target"] = re.compile (dict ['target'] + '$')
-            self.rules.append (dict)
+                msg.warning(rubber.util._format({'file': filename}, _("ignoring rule `%s' (module `%s' not found)") % (name, dict['rule'])))
+            dict["re_target"] = re.compile(dict['target'] + '$')
+            self.rules.append(dict)
 
-    def load_module (self, name):
+    def load_module(self, name):
         """
         Check if the module of the given name exists and load it. Returns True
         if the module was loaded and False otherwise.
@@ -162,18 +165,18 @@ class Converter (object):
         self.modules[name] = imp.load_module(name, *answer)
         return True
 
-    def may_produce (self, name):
+    def may_produce(self, name):
         """
         Return true if the given filename may be that of a file generated by
         this converter, i.e. if it matches one of the target regular
         expressions.
         """
         for rule in self.rules:
-            if rule ["re_target"].match(name):
+            if rule["re_target"].match(name):
                 return True
         return False
 
-    def best_rule (self, target, check, context):
+    def best_rule(self, target, check, context):
         """
         Search for an applicable rule for the given target with the least
         cost. The returned value is a dictionary that describes the best rule
@@ -186,7 +189,7 @@ class Converter (object):
         candidates = []
 
         for rule in self.rules:
-            match = rule ["re_target"].match(target)
+            match = rule["re_target"].match(target)
             if not match:
                 continue
             templates, _ = expand_cases(rule['source'], {})
@@ -200,9 +203,9 @@ class Converter (object):
 
         candidates.sort()
         for cost, source, target, rule in candidates:
-            instance = context.copy ()
-            for k, v in rule.items ():
-                instance [k] = v
+            instance = context.copy()
+            for k, v in rule.items():
+                instance[k] = v
             # Replace in this instance generic patterns set from rule with actual paths.
             instance['source'] = source
             instance['target'] = target
@@ -210,21 +213,20 @@ class Converter (object):
                 continue
             module = self.modules[rule['rule']]
             if hasattr(module, 'check'):
-                if not module.check (source=source, target=target, context=instance):
+                if not module.check(source=source, target=target, context=instance):
                     continue
             return instance
 
         return None
 
-    def apply (self, instance):
+    def apply(self, instance):
         """
         Apply a rule with the variables given in the dictionary passed as
         argument (as returned from the 'best_rule' method), and return a
         dependency node for the result.
         """
         module = self.modules[instance['rule']]
-        return module.convert(
-                source = instance['source'],
-                target = instance['target'],
-                context = instance,
-                env     = self.env)
+        return module.convert(source=instance['source'],
+                              target=instance['target'],
+                              context=instance,
+                              env=self.env)

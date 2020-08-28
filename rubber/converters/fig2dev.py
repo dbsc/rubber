@@ -7,10 +7,12 @@ Conversion of XFig graphics into various formats.
 from rubber.util import prog_available
 from rubber.depend import Shell
 
-def check (source, target, context):
+
+def check(source, target, context):
     return prog_available('fig2dev')
 
-def convert (source, target, context, env):
+
+def convert(source, target, context, env):
     # The source path is embedded by fig2dev into the target,
     # causing problem with LaTeX and non-ASCII characters.
     # Always give a relative path.
@@ -23,10 +25,10 @@ def convert (source, target, context, env):
         # appropriate language (it works fine in the cases where the module is
         # used, that is for eps, pdf and png).
 
-        language = target[target.rfind('.')+1:]
-        result = Shell (('fig2dev', '-L', language, source, target))
-        result.add_product (target)
-        result.add_source (source)
+        language = target[target.rfind('.') + 1:]
+        result = Shell(('fig2dev', '-L', language, source, target))
+        result.add_product(target)
+        result.add_source(source)
         return result
 
     else:
@@ -38,8 +40,8 @@ def convert (source, target, context, env):
 
         the_dot = target.rfind('.')
         base_name = target[:the_dot]
-        extension = target[the_dot+1:]
-        image_reference = base_name[base_name.rfind('/')+1:]
+        extension = target[the_dot + 1:]
+        image_reference = base_name[base_name.rfind('/') + 1:]
 
         if '.pdf' in env.graphics_suffixes:
             language = 'pdftex'
@@ -48,13 +50,12 @@ def convert (source, target, context, env):
             language = 'pstex'
             image_file = base_name + '.eps'
 
-        temp = Shell (('fig2dev', '-L', language, source, image_file))
-        temp.add_product (image_file)
-        temp.add_source (source)
+        temp = Shell(('fig2dev', '-L', language, source, image_file))
+        temp.add_product(image_file)
+        temp.add_source(source)
 
-        result = Shell (('fig2dev', '-L', language + '_t',
-                         '-p', image_reference, source, target))
-        result.add_product (target)
-        result.add_source (source)
-        result.add_source (image_file)
+        result = Shell(('fig2dev', '-L', language + '_t', '-p', image_reference, source, target))
+        result.add_product(target)
+        result.add_source(source)
+        result.add_source(image_file)
         return result

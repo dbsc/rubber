@@ -54,35 +54,39 @@ cat_names = {
 # The default categories
 
 catcodes = {
-    '\\' : ESCAPE,
-    '{' : OPEN,
-    '}' : CLOSE,
-    '$' : MATH,
-    '&' : ALIGN,
-    '\n' : END_LINE,
-    '#' : ARGUMENT,
-    '^' : SUPER,
-    '_' : SUB,
-    '\000' : IGNORE,
-    ' ' : SPACE, '\t' : SPACE,
-    '~' : ACTIVE,
-    '%' : COMMENT,
-    '\177' : INVALID
+    '\\': ESCAPE,
+    '{': OPEN,
+    '}': CLOSE,
+    '$': MATH,
+    '&': ALIGN,
+    '\n': END_LINE,
+    '#': ARGUMENT,
+    '^': SUPER,
+    '_': SUB,
+    '\000': IGNORE,
+    ' ': SPACE,
+    '\t': SPACE,
+    '~': ACTIVE,
+    '%': COMMENT,
+    '\177': INVALID
 }
 
-for i in range(0,26):
-    catcodes[chr(ord('A')+i)] = LETTER
-    catcodes[chr(ord('a')+i)] = LETTER
+for i in range(0, 26):
+    catcodes[chr(ord('A') + i)] = LETTER
+    catcodes[chr(ord('a') + i)] = LETTER
+
 
 class Position:
     """
     A class to represent positions in a source file.
     """
-    def __init__ (self, file=None, line=None, char=None):
+
+    def __init__(self, file=None, line=None, char=None):
         self.file = file
         self.line = line
         self.char = char
-    def __str__ (self):
+
+    def __str__(self):
         text = ''
         if self.file:
             text = file + ':'
@@ -94,37 +98,41 @@ class Position:
                 text += ':%d' % self.char
         return text
 
+
 class Token:
     """
     The class used to represent tokens. Objects contain a catcode, a value
     (for control sequences) and the raw text that represents them in the input
     file.
     """
-    def __init__ (self, cat, val=None, raw=None, pos=None):
+
+    def __init__(self, cat, val=None, raw=None, pos=None):
         self.cat = cat
         self.val = val
         self.raw = raw
         self.pos = pos
 
-    def __repr__ (self):
+    def __repr__(self):
         text = 'Token(' + cat_names[self.cat]
         if self.val is not None:
             text += ', ' + repr(self.val)
         return text + ')'
 
-class TokenList (list):
+
+class TokenList(list):
     """
     This class represents a token list. It behaves as a standard list with
     some extra functionality.
     """
-    def __init__ (self, data=[], pos=None):
-        super (TokenList, self).__init__(data)
+
+    def __init__(self, data=[], pos=None):
+        super(TokenList, self).__init__(data)
         if pos is None and len(data) > 0:
             self.pos = data[0].pos
         else:
             self.pos = pos
 
-    def raw_text (self):
+    def raw_text(self):
         """
         Return the textual representation of the token list by concatenating
         the raw text of the tokens.
@@ -134,21 +142,23 @@ class TokenList (list):
             text += token.raw
         return text
 
-class ParserBase (object):
+
+class ParserBase(object):
     """
     This is the base class for parsers. It holds state information like
     catcodes, handles the push-back buffer, and leaves it to derived classes
     to actually read tokens, using the "read_token" method. This class also
     provides high-level functionality like getting macro arguments.
     """
-    def __init__ (self):
+
+    def __init__(self):
         self.catcodes = catcodes.copy()
         self.next = []
         self.math_mode = 0
         self.last_is_math = 0
         self.pos = None
 
-    def catcode (self, char):
+    def catcode(self, char):
         """
         Return the catcode of a character.
         """
@@ -157,13 +167,13 @@ class ParserBase (object):
         else:
             return OTHER
 
-    def put_token (self, token):
+    def put_token(self, token):
         """
         Put back a token in the input.
         """
         self.next.append(token)
 
-    def put_list (self, list):
+    def put_list(self, list):
         """
         Put back a token list in the input.
         """
@@ -171,7 +181,7 @@ class ParserBase (object):
         arg.reverse()
         self.next.extend(arg)
 
-    def peek_token (self):
+    def peek_token(self):
         """
         Return the next token that will be read without updating the state.
         """
@@ -181,7 +191,7 @@ class ParserBase (object):
         self.put_token(token)
         return token
 
-    def get_token (self):
+    def get_token(self):
         """
         Get the next token from the input and update the math mode.
         """
@@ -213,7 +223,7 @@ class ParserBase (object):
 
         return token
 
-    def __iter__ (self):
+    def __iter__(self):
         """
         Return an iterator over all tokens in the input. The EOF token is not
         returned by this iterator.
@@ -224,14 +234,14 @@ class ParserBase (object):
                 break
             yield token
 
-    def skip_space (self):
+    def skip_space(self):
         """
         Skip white space in the input.
         """
         while self.peek_token().cat in (SPACE, END_LINE):
             self.get_token()
 
-    def get_group (self):
+    def get_group(self):
         """
         Get the list of tokens up to the next closing brace, and drop the
         closing brace.
@@ -251,7 +261,7 @@ class ParserBase (object):
             value.append(token)
         return value
 
-    def get_group_text (self):
+    def get_group_text(self):
         """
         Get the list of tokens up to the next closing brace, and drop the
         closing brace. Return the list as a string.
@@ -271,7 +281,7 @@ class ParserBase (object):
             value += token.raw
         return value
 
-    def get_argument (self):
+    def get_argument(self):
         """
         Get a macro argument from the input text. Returns a token list with
         the value of the argument, with surrounding braces removed if
@@ -285,7 +295,7 @@ class ParserBase (object):
             return TokenList(data=[token])
         return self.get_group()
 
-    def get_argument_text (self):
+    def get_argument_text(self):
         """
         Get a macro argument from the input text. Returns a string with
         the text of the argument, with surrounding braces removed if
@@ -299,7 +309,7 @@ class ParserBase (object):
             return token.raw
         return self.get_group_text()
 
-    def get_latex_optional (self):
+    def get_latex_optional(self):
         """
         Check if a LaTeX-style optional argument is present. If such an
         argument is present, return it as a token list, otherwise return None.
@@ -329,7 +339,7 @@ class ParserBase (object):
 
         return list
 
-    def get_latex_optional_text (self):
+    def get_latex_optional_text(self):
         """
         Check if a LaTeX-style optional argument is present. If such an
         argument is present, return it as text, otherwise return None.
@@ -339,7 +349,7 @@ class ParserBase (object):
             return None
         return list.raw_text()
 
-    def get_latex_star (self):
+    def get_latex_star(self):
         """
         Check if the command is a starred one.  If so, eat the star,
         and return True.  Otherwise, return False.
@@ -351,7 +361,8 @@ class ParserBase (object):
         else:
             return False
 
-def re_set (set, complement=False):
+
+def re_set(set, complement=False):
     """
     Returns a string that contains a regular expression matching a given set
     of characters, or its complement if the optional argument is true. The set
@@ -375,7 +386,8 @@ def re_set (set, complement=False):
             expr += c
     return expr + ']'
 
-class Parser (ParserBase):
+
+class Parser(ParserBase):
     """
     A parser for TeX code that reads its input from a file object.
 
@@ -385,20 +397,21 @@ class Parser (ParserBase):
     tokens. This advantage of this method is that is is much faster than
     reading tokens one by one.
     """
-    def __init__ (self, input):
+
+    def __init__(self, input):
         """
         Initialise the parser with a file as input.
         If 'input' is None, then input can only be provided by
         the 'put_token' and 'put_list' methods.
         """
-        super (Parser, self).__init__()
+        super(Parser, self).__init__()
         self.input = input
         self.line = ""
         self.pos_line = 1
         self.pos_char = 1
         self.next_char = None
 
-    def read_line (self):
+    def read_line(self):
         """
         Reads a line of input and sets the attribute 'line' with it. Returns
         True if reading succeeded and False if it failed.
@@ -410,7 +423,7 @@ class Parser (ParserBase):
             return False
         return True
 
-    def read_char (self):
+    def read_char(self):
         """
         Get the next character from the input and its catcode (without parsing
         control sequences).
@@ -435,7 +448,7 @@ class Parser (ParserBase):
 
         return Token(self.catcode(c), raw=c, pos=pos)
 
-    def read_token (self):
+    def read_token(self):
         """
         Get the next token from the input.
         """
@@ -463,21 +476,21 @@ class Parser (ParserBase):
         self.next_char = token
         return Token(CSEQ, name, raw, pos=pos)
 
-    def re_cat (self, *cat):
+    def re_cat(self, *cat):
         """
         Returns a regular expression that maches characters whose category is
         in given list.
         """
-        return re_set([char for char,code in self.catcodes.items() if code in cat])
+        return re_set([char for char, code in self.catcodes.items() if code in cat])
 
-    def re_nocat (self, *cat):
+    def re_nocat(self, *cat):
         """
         Returns a regular expression that maches characters whose category is
         not in a given list.
         """
-        return re_set([char for char,code in self.catcodes.items() if code in cat], True)
+        return re_set([char for char, code in self.catcodes.items() if code in cat], True)
 
-    def set_hooks (self, names):
+    def set_hooks(self, names):
         """
         Define the set of hooks for 'next_hook'.
         """
@@ -489,7 +502,7 @@ class Parser (ParserBase):
             + '(' + self.re_cat(SPACE) + '+|(?=' + self.re_nocat(LETTER) + ')|$))'
         self.regex = re.compile(expr)
 
-    def next_hook (self):
+    def next_hook(self):
         """
         Ignore input until the next control sequence from the set defined by
         'set_hooks'. Returns the associated token, or the EOF token if no hook
@@ -509,7 +522,8 @@ class Parser (ParserBase):
             self.pos_line += 1
             self.pos_char = 1
 
-def parse_string (text):
+
+def parse_string(text):
     """
     Factory function for parsing TeX code from a string.
     """

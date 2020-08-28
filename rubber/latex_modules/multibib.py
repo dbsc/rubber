@@ -18,22 +18,23 @@ argument, they apply to all bibliographies.
 import os, os.path, re
 from rubber.util import _
 import logging
-msg = logging.getLogger (__name__)
+msg = logging.getLogger(__name__)
 import rubber.biblio
 import rubber.module_interface
 
 re_optarg = re.compile(r'\((?P<list>[^()]*)\) *')
 
-class Module (rubber.module_interface.Module):
 
-    def __init__ (self, document, opt):
+class Module(rubber.module_interface.Module):
+
+    def __init__(self, document, opt):
         self.doc = document
         self.bibs = {}
         self.defaults = []
         self.commands = {}
-        document.hook_macro ('newcites', 'a', self.hook_newcites)
+        document.hook_macro('newcites', 'a', self.hook_newcites)
 
-    def command (self, cmd, args):
+    def command(self, cmd, args):
         names = None
 
         # Check if there is the optional argument.
@@ -48,29 +49,27 @@ class Module (rubber.module_interface.Module):
         # later on.
 
         if names is None:
-            self.defaults.append ([cmd, args])
+            self.defaults.append([cmd, args])
             names = self.bibs.keys()
 
         # Then run the command for each index it concerns.
 
         for name in names:
             if name in self.bibs:
-                super ().command (cmd, args, _dep = self.bibs [name])
+                super().command(cmd, args, _dep=self.bibs[name])
             elif name in self.commands:
-                self.commands [name].append ([cmd, args])
+                self.commands[name].append([cmd, args])
             else:
-                self.commands [name] = [[cmd, args]]
+                self.commands[name] = [[cmd, args]]
 
-    def hook_newcites (self, loc, name):
-        self.doc.add_product (name + ".aux")
-        bib = self.bibs [name] = rubber.biblio.BibTeXDep (self.doc, name)
-        self.doc.hook_macro('bibliography' + name, 'a',
-                            bib.hook_bibliography)
-        self.doc.hook_macro('bibliographystyle' + name, 'a',
-                            bib.hook_bibliographystyle)
+    def hook_newcites(self, loc, name):
+        self.doc.add_product(name + ".aux")
+        bib = self.bibs[name] = rubber.biblio.BibTeXDep(self.doc, name)
+        self.doc.hook_macro('bibliography' + name, 'a', bib.hook_bibliography)
+        self.doc.hook_macro('bibliographystyle' + name, 'a', bib.hook_bibliographystyle)
         for cmd in self.defaults:
-            super ().command (*cmd, _dep = bib)
+            super().command(*cmd, _dep=bib)
         if name in self.commands:
-            for cmd in self.commands [name]:
-                super ().command (*cmd, _dep = bib)
+            for cmd in self.commands[name]:
+                super().command(*cmd, _dep=bib)
         msg.debug(_("bibliography %s registered") % name)

@@ -10,7 +10,7 @@ import os.path, stat
 import errno
 import imp
 import logging
-msg = logging.getLogger (__name__)
+msg = logging.getLogger(__name__)
 import re
 from string import whitespace
 import subprocess
@@ -18,10 +18,13 @@ import sys
 
 #-- Message writers --{{{1
 
-# The function `_' is defined here to prepare for internationalization.
-def _ (txt): return txt
 
-def _format (where, text):
+# The function `_' is defined here to prepare for internationalization.
+def _(txt):
+    return txt
+
+
+def _format(where, text):
     """
     Format the given text into a proper error message, with file and line
     information in the standard format. Position information is taken from
@@ -31,7 +34,7 @@ def _format (where, text):
         return text
 
     if "file" in where and where["file"] is not None:
-        pos = where ["file"]
+        pos = where["file"]
         if "line" in where and where["line"]:
             pos = "%s:%d" % (pos, int(where["line"]))
             if "last" in where:
@@ -48,6 +51,7 @@ def _format (where, text):
         text = "[%s] %s" % (where["pkg"], text)
     return pos + text
 
+
 #-- Keyval parsing --{{{1
 
 re_keyval = re.compile("\
@@ -56,7 +60,8 @@ re_keyval = re.compile("\
 ([ \n\t]*=[ \n\t]*\
 (?P<val>({|[^{},]*)))?")
 
-def parse_keyval (str):
+
+def parse_keyval(str):
     """
     Parse a list of 'key=value' pairs, with the syntax used in LaTeX's
     standard 'keyval' package. The value returned is simply a dictionary that
@@ -80,7 +85,8 @@ def parse_keyval (str):
             dict[d["key"]] = d["val"].strip()
     return dict
 
-def match_brace (str):
+
+def match_brace(str):
     """
     Split the string at the first closing brace such that the extracted prefix
     is balanced with respect to braces. The return value is a pair. If the
@@ -96,7 +102,7 @@ def match_brace (str):
         elif str[pos] == '}':
             level = level - 1
             if level == -1:
-                return (str[:pos], str[pos+1:])
+                return (str[:pos], str[pos + 1:])
     return (str, "")
 
 
@@ -104,7 +110,8 @@ def match_brace (str):
 
 checked_progs = {}
 
-def prog_available (prog):
+
+def prog_available(prog):
     """
     Test whether the specified program is available in the current path, and
     return its actual path if it is found, or None.
@@ -123,11 +130,13 @@ def prog_available (prog):
     checked_progs[prog] = None
     return None
 
+
 #-- Parsing commands --{{{1
 
 re_variable = re.compile("(?P<name>[a-zA-Z]+)")
 
-def parse_line (line, dict):
+
+def parse_line(line, dict):
     """
     Decompose a string into a list of elements. The elements are separated by
     spaces, single and double quotes allow escaping of spaces (and quotes).
@@ -144,12 +153,15 @@ def parse_line (line, dict):
     i = 0
     size = len(line)
     while i < size:
-        while i < size and line[i] in whitespace: i = i+1
-        if i == size: break
+        while i < size and line[i] in whitespace:
+            i = i + 1
+        if i == size:
+            break
 
-        open = 0    # which quote is open
-        arg = ""    # the current argument, so far
-        if not dict: composed = None    # the current composed argument
+        open = 0  # which quote is open
+        arg = ""  # the current argument, so far
+        if not dict:
+            composed = None  # the current composed argument
 
         while i < size:
             c = line[i]
@@ -157,9 +169,12 @@ def parse_line (line, dict):
             # Open or close quotes.
 
             if c in '\'\"':
-                if open == c: open = 0
-                elif open: arg = arg + c
-                else: open = c
+                if open == c:
+                    open = 0
+                elif open:
+                    arg = arg + c
+                else:
+                    open = c
 
             # '$' introduces a variable name, except within single quotes.
 
@@ -168,40 +183,56 @@ def parse_line (line, dict):
                 # Make the argument composed, if relevant.
 
                 if not dict:
-                    if not composed: composed = []
-                    if arg != "": composed.append("'" + arg)
+                    if not composed:
+                        composed = []
+                    if arg != "":
+                        composed.append("'" + arg)
                     arg = ""
 
                 # Parse the variable name.
 
-                if i+1 < size and line[i+1] == '{':
-                    end = line.find('}', i+2)
+                if i + 1 < size and line[i + 1] == '{':
+                    end = line.find('}', i + 2)
                     if end < 0:
-                        name = line[i+2:]
+                        name = line[i + 2:]
                         i = size
                     else:
-                        name = line[i+2:end]
+                        name = line[i + 2:end]
                         i = end + 1
                 else:
-                    m = re_variable.match(line, i+1)
+                    m = re_variable.match(line, i + 1)
                     if m:
                         name = m.group("name")
                         i = m.end()
                     else:
                         name = ""
-                        i = i+1
+                        i = i + 1
 
                 # Append the variable or its name.
 
                 if dict:
                     if name in dict:
                         arg = arg + str(dict[name])
-                    elif name in ('cwd', 'base', 'ext', 'path', 'latex', 'program', 'engine', 'file', 'line', ):
-                        msg.error (_ ('Obsolete variable: '+ name))
-                    elif name in ('graphics_suffixes', 'src-specials', 'logfile_limit', ):
-                        msg.error (_ ('Write-only variable: '+ name))
+                    elif name in (
+                            'cwd',
+                            'base',
+                            'ext',
+                            'path',
+                            'latex',
+                            'program',
+                            'engine',
+                            'file',
+                            'line',
+                    ):
+                        msg.error(_('Obsolete variable: ' + name))
+                    elif name in (
+                            'graphics_suffixes',
+                            'src-specials',
+                            'logfile_limit',
+                    ):
+                        msg.error(_('Write-only variable: ' + name))
                     else:
-                        msg.error (_ ('Unknown variable: '+ name))
+                        msg.error(_('Unknown variable: ' + name))
 
                 else:
                     composed.append("$" + name)
@@ -210,55 +241,61 @@ def parse_line (line, dict):
             # Handle spaces.
 
             elif c in whitespace:
-                if open: arg = arg + c
-                else: break
+                if open:
+                    arg = arg + c
+                else:
+                    break
             else:
                 arg = arg + c
-            i = i+1
+            i = i + 1
 
         # Append the new argument.
 
         if dict or not composed:
             elems.append(arg)
         else:
-            if arg != "": composed.append("'" + arg)
+            if arg != "":
+                composed.append("'" + arg)
             elems.append(composed)
 
     return elems
 
-def explode_path (name = "PATH"):
+
+def explode_path(name="PATH"):
     """
     Parse an environment variable into a list of paths, and return it as an array.
     """
-    path = os.getenv (name)
+    path = os.getenv(name)
     if path is not None:
-        return path.split (":")
+        return path.split(":")
     else:
         return []
 
-def find_resource (name, suffix = "", paths = []):
+
+def find_resource(name, suffix="", paths=[]):
     """
     find the indicated file, mimicking what latex would do:
     tries adding a suffix such as ".bib", or looking in the specified paths.
     if unsuccessful, returns None.
     """
-    name = name.strip ()
+    name = name.strip()
 
-    if os.path.exists (name):
+    if os.path.exists(name):
         return name
-    elif suffix != "" and os.path.exists (name + suffix):
+    elif suffix != "" and os.path.exists(name + suffix):
         return name + suffix
 
     for path in paths:
-        fullname = os.path.join (path, name)
-        if os.path.exists (fullname):
+        fullname = os.path.join(path, name)
+        if os.path.exists(fullname):
             return fullname
-        elif suffix != "" and os.path.exists (fullname + suffix):
+        elif suffix != "" and os.path.exists(fullname + suffix):
             return fullname + suffix
 
     return None
 
-def execute (prog, env={}, pwd=None, out=None):
+
+def execute(prog, env={}, pwd=None, out=None):
     """
     Silently execute an external program. The `prog' argument is the list
     of arguments for the program, `prog[0]' is the program name. The `env'
@@ -266,7 +303,7 @@ def execute (prog, env={}, pwd=None, out=None):
     environment when running the program. The standard output is passed
     line by line to the `out' function (or discarded by default).
     """
-    msg.info(_("executing: %s") % " ".join (prog))
+    msg.info(_("executing: %s") % " ".join(prog))
     if pwd:
         msg.debug(_("  in directory %s") % pwd)
     if env != {}:
@@ -278,16 +315,16 @@ def execute (prog, env={}, pwd=None, out=None):
         return 1
 
     penv = os.environ.copy()
-    for (key,val) in env.items():
+    for (key, val) in env.items():
         penv[key] = val
 
     process = subprocess.Popen(prog,
-        executable = progname,
-        env = penv,
-        cwd = pwd,
-        stdin = subprocess.DEVNULL,
-        stdout = subprocess.PIPE,
-        stderr = None)
+                               executable=progname,
+                               env=penv,
+                               cwd=pwd,
+                               stdin=subprocess.DEVNULL,
+                               stdout=subprocess.PIPE,
+                               stderr=None)
 
     if out is not None:
         for line in process.stdout:

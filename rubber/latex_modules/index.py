@@ -41,15 +41,17 @@ occur.
 
 import re
 import logging
-msg = logging.getLogger (__name__)
+msg = logging.getLogger(__name__)
 from rubber.index import Index
 from rubber.util import _
 import rubber.module_interface
 
 re_optarg = re.compile(r'\((?P<list>[^()]*)\) *')
 
-class Module (rubber.module_interface.Module):
-    def __init__ (self, document, opt):
+
+class Module(rubber.module_interface.Module):
+
+    def __init__(self, document, opt):
         self.doc = document
         self.indices = {}
         self.defaults = []
@@ -57,7 +59,7 @@ class Module (rubber.module_interface.Module):
         document.hook_macro('makeindex', '', self.hook_makeindex)
         document.hook_macro('newindex', 'aaa', self.hook_newindex)
 
-    def register (self, name, idx, ind, ilg):
+    def register(self, name, idx, ind, ilg):
         """
         Register a new index.
         """
@@ -65,16 +67,17 @@ class Module (rubber.module_interface.Module):
         for command in self.defaults:
             index.command(*command)
         if name in self.commands:
-            for command in self.commands [name]:
+            for command in self.commands[name]:
                 index.command(*command)
 
-    def hook_makeindex (self, loc):
+    def hook_makeindex(self, loc):
         self.register('default', 'idx', 'ind', 'ilg')
 
-    def hook_newindex (self, loc, index, idx, ind):
+    def hook_newindex(self, loc, index, idx, ind):
         self.register(index, idx, ind, 'ilg')
         msg.debug(_("index %s registered") % index)
-    def command (self, cmd, args):
+
+    def command(self, cmd, args):
         names = None
 
         # Check if there is the optional argument.

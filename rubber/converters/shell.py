@@ -13,12 +13,14 @@ The action of this rule is defined by variables specified in the rule file:
 from rubber.util import parse_line, prog_available
 from rubber.depend import Shell
 
-def check (source, target, context):
+
+def check(source, target, context):
     line = parse_line(context['command'], context)
     return prog_available(line[0])
 
-def convert (source, target, context, env):
-    result = Shell (parse_line (context ['command'], context))
-    result.add_product (target)
-    result.add_source (source)
+
+def convert(source, target, context, env):
+    result = Shell(parse_line(context['command'], context))
+    result.add_product(target)
+    result.add_source(source)
     return result

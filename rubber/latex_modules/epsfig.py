@@ -11,9 +11,11 @@ an EPS figure file.
 from rubber.util import parse_keyval
 import rubber.module_interface
 
-class Module (rubber.module_interface.Module):
-    def __init__ (self, document, opt):
-        document.modules.register ('graphics')
+
+class Module(rubber.module_interface.Module):
+
+    def __init__(self, document, opt):
+        document.modules.register('graphics')
         _, self.hook_includegraphics = document.hooks['includegraphics']
         # We proceed as if \epsfbox and \includegraphics were equivalent.
         document.hook_macro('epsfbox', 'oa', self.hook_epsfbox)
@@ -21,10 +23,10 @@ class Module (rubber.module_interface.Module):
         document.hook_macro('epsfig', 'a', self.hook_epsfig)
         document.hook_macro('psfig', 'a', self.hook_epsfig)
 
-    def hook_epsfbox (self, loc, optional, argument):
+    def hook_epsfbox(self, loc, optional, argument):
         self.hook_includegraphics(loc, False, optional, argument)
 
-    def hook_epsfig (self, loc, argument):
+    def hook_epsfig(self, loc, argument):
         # We just translate this into an equivalent call to \includegraphics.
         options = parse_keyval(argument)
         if 'file' not in options:

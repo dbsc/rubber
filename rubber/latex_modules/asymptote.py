@@ -14,7 +14,6 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 This module supports the 'asymptote' LaTeX package.
 
@@ -38,24 +37,26 @@ import rubber.module_interface
 import rubber.util
 from rubber.util import _
 import logging
-msg = logging.getLogger (__name__)
+msg = logging.getLogger(__name__)
+
 
 # Returns None if inline is unset, else a boolean.
-def inline_option (option_string, default):
-    options = rubber.util.parse_keyval (option_string)
+def inline_option(option_string, default):
+    options = rubber.util.parse_keyval(option_string)
     try:
-        value = options ['inline']
-    except KeyError:            # No inline option.
+        value = options['inline']
+    except KeyError:  # No inline option.
         return default
     return value == None or value == "true"
 
-class Module (rubber.module_interface.Module):
 
-    def __init__ (self, document, opt):
+class Module(rubber.module_interface.Module):
+
+    def __init__(self, document, opt):
         self.asy_environments = 0
         self.doc = document
 
-        document.add_product (document.basename (with_suffix = ".pre"))
+        document.add_product(document.basename(with_suffix=".pre"))
 
         if document.engine == 'pdfTeX' \
            and document.primary_product ().endswith ('.pdf'):
@@ -65,53 +66,53 @@ class Module (rubber.module_interface.Module):
         else:
             self.format = ".eps"
 
-        self.global_inline = inline_option (opt, default=False)
+        self.global_inline = inline_option(opt, default=False)
 
-        document.hook_begin ("asy", self.on_begin_asy)
+        document.hook_begin("asy", self.on_begin_asy)
 
-    def on_begin_asy (self, loc):
+    def on_begin_asy(self, loc):
         environment_options = None
         # For the moment, I hardly see how to parse optional
         # environment arguments.
 
         # Do not parse between \begin{asy} and \end{asy} as LaTeX.
-        self.doc.h_begin_verbatim (loc, env="asy")
+        self.doc.h_begin_verbatim(loc, env="asy")
 
         self.asy_environments += 1
-        prefix = self.doc.basename (with_suffix = "-" + str (self.asy_environments))
+        prefix = self.doc.basename(with_suffix="-" + str(self.asy_environments))
         source = prefix + ".asy"
 
-        inline = inline_option (environment_options, default=self.global_inline)
+        inline = inline_option(environment_options, default=self.global_inline)
 
-        self.doc.add_product (source)
-        node = Shell_Restoring_Aux (self.doc.basename (with_suffix = '.aux'),
-                                    source)
+        self.doc.add_product(source)
+        node = Shell_Restoring_Aux(self.doc.basename(with_suffix='.aux'), source)
         if inline:
-            node.add_product (prefix + ".tex")
-            node.add_product (prefix + "_0" + self.format)
-            node.add_product (prefix + ".pre")
-            self.doc.add_source (prefix + ".tex")
+            node.add_product(prefix + ".tex")
+            node.add_product(prefix + "_0" + self.format)
+            node.add_product(prefix + ".pre")
+            self.doc.add_source(prefix + ".tex")
         else:
-            node.add_product (prefix + self.format)
-            self.doc.add_source (prefix + self.format)
-        node.add_source (source)
+            node.add_product(prefix + self.format)
+            self.doc.add_source(prefix + self.format)
+        node.add_source(source)
 
-class Shell_Restoring_Aux (rubber.depend.Shell):
+
+class Shell_Restoring_Aux(rubber.depend.Shell):
     """This class replaces Shell because of a bug in asymptote. Every run
 of /usr/bin/asy flushes the .aux file.
 
     """
 
-    def __init__ (self, aux, source):
-        super ().__init__ (command = ('asy', source))
+    def __init__(self, aux, source):
+        super().__init__(command=('asy', source))
         self.aux = aux
 
-    def run (self):
+    def run(self):
         bak = self.aux + '.away_from_asymptote'
-        msg.debug (_("saving %s to %s"), self.aux, bak)
-        os.rename (self.aux, bak)
+        msg.debug(_("saving %s to %s"), self.aux, bak)
+        os.rename(self.aux, bak)
         try:
-            return super ().run ()
+            return super().run()
         finally:
-            msg.debug (_("restoring %s to %s"), bak, self.aux)
-            os.rename (bak, self.aux)
+            msg.debug(_("restoring %s to %s"), bak, self.aux)
+            os.rename(bak, self.aux)

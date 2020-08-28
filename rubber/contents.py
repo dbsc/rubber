@@ -1,12 +1,13 @@
 import hashlib
 import logging
-log = logging.getLogger (__name__)
+log = logging.getLogger(__name__)
 import io
 import os.path
 
 _cache = {}
 
-def snapshot (path):
+
+def snapshot(path):
     """
         A snapshot of the contents of an external file.
 
@@ -32,71 +33,78 @@ def snapshot (path):
     # Distinct paths refering to the same external file should be
     # rare, so we do not attempt to detect them.
     try:
-        c, t = _cache [path]
+        c, t = _cache[path]
     except KeyError:
         c, t = None, None
 
-    if os.path.exists (path):
-        mtime = os.path.getmtime (path)
+    if os.path.exists(path):
+        mtime = os.path.getmtime(path)
         if c is None:
-            log.debug ('%s contents are now watched', path)
-            c = _checksum_algorithm (path)
+            log.debug('%s contents are now watched', path)
+            c = _checksum_algorithm(path)
             t = mtime
         elif c == NO_SUCH_FILE:
-            log.debug ('%s has been created', path)
-            c = _checksum_algorithm (path)
+            log.debug('%s has been created', path)
+            c = _checksum_algorithm(path)
             t = mtime
         elif t == mtime:
-            log.debug ('%s has the same mtime', path)
+            log.debug('%s has the same mtime', path)
         else:
             assert t < mtime, 'mtime decreased: ' + path
             t = mtime
-            checksum = _checksum_algorithm (path)
+            checksum = _checksum_algorithm(path)
             if checksum == c:
-                log.debug ('%s rewritten with same checksum', path)
+                log.debug('%s rewritten with same checksum', path)
             else:
-                log.debug ('%s rewritten with new contents.', path)
+                log.debug('%s rewritten with new contents.', path)
                 c = checksum
     elif c is None:
-        log.debug ('%s will be watched once created', path)
+        log.debug('%s will be watched once created', path)
         c = NO_SUCH_FILE
     else:
         assert c == NO_SUCH_FILE, path + ' vanished'
-        log.debug ('%s does not exist yet',  path)
+        log.debug('%s does not exist yet', path)
 
-    _cache [path] = (c, t)
+    _cache[path] = (c, t)
     return c
 
-# Md5 values are represented as bytes. None is used above.
-NO_SUCH_FILE = bytes ()
 
-def _checksum_algorithm (path):
-    with open (path, 'br') as stream:
-        result = hashlib.md5 ()
+# Md5 values are represented as bytes. None is used above.
+NO_SUCH_FILE = bytes()
+
+
+def _checksum_algorithm(path):
+    with open(path, 'br') as stream:
+        result = hashlib.md5()
         while True:
-            data = stream.read (io.DEFAULT_BUFFER_SIZE)
+            data = stream.read(io.DEFAULT_BUFFER_SIZE)
             if not data:
-                return result.digest ()
-            result.update (data)
+                return result.digest()
+            result.update(data)
+
 
 # These two functions encapsulate the hexadecimal representation of
 # checksums other than NO_SUCH_FILE.  In order to ease formatting, all
 # results are guaranteed to have a common length.
 cs_str_len = 32
-def cs2str (checksum):
+
+
+def cs2str(checksum):
     if checksum == NO_SUCH_FILE:
         result = 'No such file                    '
     else:
-        result = ''.join ('{:02X}'.format (byte) for byte in checksum)
-    assert len (result) == cs_str_len
+        result = ''.join('{:02X}'.format(byte) for byte in checksum)
+    assert len(result) == cs_str_len
     return result
-def str2cs (string):
-    assert len (string) == cs_str_len
+
+
+def str2cs(string):
+    assert len(string) == cs_str_len
     if string == 'No such file                    ':
         return NO_SUCH_FILE
     else:
-        return bytes (int (string [i:i+2], base=16)
-                      for i in range (0, len (string), 2))
+        return bytes(int(string[i:i + 2], base=16) for i in range(0, len(string), 2))
+
 
 # Manual tests
 

@@ -16,3 +16,6 @@ test:
       touch graphicx-dotted-files/disable
       touch pythontex/disable
       ./run.sh --debchroot *
+
+lint:
+  script: make lint

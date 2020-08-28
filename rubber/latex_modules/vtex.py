@@ -12,14 +12,15 @@ default, switching to PS is possible by using the module option "ps".
 
 import rubber.module_interface
 
-class Module (rubber.module_interface.Module):
 
-    def __init__ (self, document, opt):
+class Module(rubber.module_interface.Module):
+
+    def __init__(self, document, opt):
         document.engine = 'VTeX'
         if opt == 'ps':
             document.program = 'vlatexp'
-            document.register_post_processor (old_suffix='.ps', new_suffix='.ps')
+            document.register_post_processor(old_suffix='.ps', new_suffix='.ps')
         else:
             document.program = 'vlatex'
-            document.register_post_processor (old_suffix='.pdf', new_suffix='.pdf')
+            document.register_post_processor(old_suffix='.pdf', new_suffix='.pdf')
         document.cmdline = ['-n1', '@latex', '%s']

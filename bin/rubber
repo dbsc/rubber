@@ -15,4 +15,4 @@ if Path(POTENTIAL_RUBBER_MODULE_DIR / '__init__.py').is_file():
         sys.path.insert(0, RUBBER_SOURCE_TREE_PYTHONPATH)
 
 import rubber.cmdline
-rubber.cmdline.main (command_name = rubber.cmdline.RUBBER_PLAIN)
+rubber.cmdline.main(command_name=rubber.cmdline.RUBBER_PLAIN)

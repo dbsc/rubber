@@ -5,7 +5,7 @@ Extraction of bounding box information from gzipped PostScript figures.
 """
 
 import logging
-msg = logging.getLogger (__name__)
+msg = logging.getLogger(__name__)
 from rubber.util import _
 import rubber.depend
 
@@ -14,16 +14,17 @@ import re
 
 re_bbox = re.compile("%[%\w]*BoundingBox:")
 
-class Dep (rubber.depend.Node):
 
-    def __init__ (self, target, source):
-        super ().__init__ ()
-        self.add_product (target)
-        self.add_source (source)
+class Dep(rubber.depend.Node):
+
+    def __init__(self, target, source):
+        super().__init__()
+        self.add_product(target)
+        self.add_source(source)
         self.source = source
         self.target = target
 
-    def run (self):
+    def run(self):
         """
         This method reads the source file (which is supposed to be a
         gzip-compressed PostScript file) until it finds a line that contains a
@@ -50,5 +51,6 @@ class Dep (rubber.depend.Node):
         msg.error(_("no bounding box was found in %s!") % self.source)
         return False
 
-def convert (source, target, context, env):
-    return Dep (target, source)
+
+def convert(source, target, context, env):
+    return Dep(target, source)

@@ -10,19 +10,21 @@ file, so this support package registers these files as dependencies.
 
 from rubber.util import _
 import logging
-msg = logging.getLogger (__name__)
+msg = logging.getLogger(__name__)
 import rubber.module_interface
 
-class Module (rubber.module_interface.Module):
-    def __init__ (self, document, opt):
-        self.doc=document
+
+class Module(rubber.module_interface.Module):
+
+    def __init__(self, document, opt):
+        self.doc = document
         document.hook_macro('externaldocument', 'oa', self.hook_externaldocument)
 
-    def hook_externaldocument (self, loc, opt, name):
+    def hook_externaldocument(self, loc, opt, name):
         aux = self.doc.env.find_file(name + '.aux')
         if aux:
             self.doc.add_source(aux)
-            msg.debug( _(
+            msg.debug(_(
                 "dependency %s added for external references") % aux)
         else:
             msg.debug(_(

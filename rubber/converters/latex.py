@@ -13,7 +13,7 @@ import importlib
 import os, os.path, sys
 import re
 import logging
-msg = logging.getLogger (__name__)
+msg = logging.getLogger(__name__)
 import rubber.util
 from rubber.util import _, parse_line
 import rubber.depend
@@ -24,6 +24,7 @@ from rubber.tex import EOF, OPEN, SPACE, END_LINE
 
 #----  Module handler  ----{{{1
 
+
 class Modules:
     """
     This class gathers all operations related to the management of modules.
@@ -31,24 +32,25 @@ class Modules:
     scripts in the 'modules' directory in the program's data directory, then
     as a Python module in the package `rubber.latex'.
     """
-    def __init__ (self, latexdep):
+
+    def __init__(self, latexdep):
         self.latexdep = latexdep
         self.objects = {}
         self.commands = {}
 
-    def __getitem__ (self, name):
+    def __getitem__(self, name):
         """
         Return the module object of the given name.
         """
         return self.objects[name]
 
-    def __contains__ (self, name):
+    def __contains__(self, name):
         """
         Check if a given module is loaded.
         """
         return name in self.objects
 
-    def register (self, name, opt=None, maybe_missing = False):
+    def register(self, name, opt=None, maybe_missing=False):
         """
         Attempt to register a module with the specified name. If the module is
         already loaded, do nothing. If it is found and not yet loaded, then
@@ -64,7 +66,7 @@ class Modules:
         # Warn about obsolete user modules.
 
         rub_searchpath = [
-            "",                                # working dir
+            "",  # working dir
             rubber.latex_modules.__path__[0],  # builtin rubber modules
             # these are different from pre-1.4 search paths to avoid pulling
             # in old modules from previous installs.
@@ -74,41 +76,45 @@ class Modules:
         for path in rub_searchpath:
             file = os.path.join(path, name + ".rub")
             if os.path.exists(file):
-                msg.error (rubber.util._format ({'file':file},
-                    'Ignoring %s. Please contact the authors for a replacement.' % file))
+                msg.error(
+                    rubber.util._format(
+                        {'file': file},
+                        'Ignoring %s. Please contact the authors for a replacement.' % file))
         for directory in (
-            "",                                # working dir
-            "/usr/local/share/rubber/latex_modules",
-            "/usr/share/rubber/latex_modules",
+                "",  # working dir
+                "/usr/local/share/rubber/latex_modules",
+                "/usr/share/rubber/latex_modules",
         ):
             path = os.path.join(path, name + ".py")
-            if (os.path.exists (path)):
-                msg.error (rubber.util._format ({'file':file},
-                    'Ignoring %s. Please contact the authors for a replacement.' % path))
+            if (os.path.exists(path)):
+                msg.error(
+                    rubber.util._format(
+                        {'file': file},
+                        'Ignoring %s. Please contact the authors for a replacement.' % path))
 
         # Import the built-in python module, if any.
 
         try:
-            source = importlib.import_module ('rubber.latex_modules.' + name)
+            source = importlib.import_module('rubber.latex_modules.' + name)
         except ImportError:
             if maybe_missing:
-                msg.debug (_("no support found for %s") % name)
+                msg.debug(_("no support found for %s") % name)
                 return
             else:
-                raise rubber.GenericError (_("module %s not found") % name)
-        mod = source.Module (document=self.latexdep, opt=opt)
-        msg.debug (_("built-in module %s registered") % name)
+                raise rubber.GenericError(_("module %s not found") % name)
+        mod = source.Module(document=self.latexdep, opt=opt)
+        msg.debug(_("built-in module %s registered") % name)
 
         # Run any delayed commands.
 
         if name in self.commands:
             for (cmd, args) in self.commands[name]:
-                mod.command (cmd, args)
+                mod.command(cmd, args)
             del self.commands[name]
 
         self.objects[name] = mod
 
-    def command (self, mod, cmd, args):
+    def command(self, mod, cmd, args):
         """
         Send a command to a particular module. If this module is not loaded,
         store the command so that it will be sent when the module is registered.
@@ -126,33 +132,33 @@ class Modules:
 re_loghead = re.compile("This is [0-9a-zA-Z-]*")
 re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
-re_rawbox = re.compile (r'^\\[hv]box\(')
+re_rawbox = re.compile(r'^\\[hv]box\(')
 re_line = re.compile(r"(l\.(?P<line>[0-9]+)( (?P<code>.*))?$|<\*>)")
 re_cseq = re.compile(r".*(?P<seq>(\\|\.\.\.)[^ ]*) ?$")
 re_macro = re.compile(r"^(?P<macro>\\.*) ->")
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
-re_atline = re.compile(
-"( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
+re_atline = re.compile("( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
 re_reference = re.compile("LaTeX Warning: Reference `(?P<ref>.*)' \
 on page (?P<page>[0-9]*) undefined on input line (?P<line>[0-9]*)\\.$")
 re_label = re.compile("LaTeX Warning: (?P<text>Label .*)$")
-re_warning = re.compile(
-"(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<text>.*)$")
+re_warning = re.compile("(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<text>.*)$")
 re_online = re.compile("(; reported)? on input line (?P<line>[0-9]*)")
 re_ignored = re.compile("; all text was ignored after line (?P<line>[0-9]*).$")
 
-class LogCheck (object):
+
+class LogCheck(object):
     """
     This class performs all the extraction of information from the log file.
     For efficiency, the instances contain the whole file as a list of strings
     so that it can be read several times with no disk access.
     """
+
     #-- Initialization {{{2
 
-    def __init__ (self):
+    def __init__(self):
         self.lines = None
 
-    def readlog (self, name, limit):
+    def readlog(self, name, limit):
         """
         Read the specified log file, checking that it was produced by the
         right compiler. Returns False if the log file is invalid or does not
@@ -160,25 +166,25 @@ class LogCheck (object):
         """
         self.lines = None
         try:
-            with open (name, encoding='utf_8', errors='replace') as fp:
-                line = fp.readline ()
-                if not line or not re_loghead.match (line):
-                    msg.debug (_('empty log'))
+            with open(name, encoding='utf_8', errors='replace') as fp:
+                line = fp.readline()
+                if not line or not re_loghead.match(line):
+                    msg.debug(_('empty log'))
                     return False
                 # do not read the whole log unconditionally
-                whole_file = fp.read (limit)
-                self.lines = whole_file.split ('\n')
-                if fp.read (1) != '':
+                whole_file = fp.read(limit)
+                self.lines = whole_file.split('\n')
+                if fp.read(1) != '':
                     # more data to be read
-                    msg.warning (_('log file is very long, and will not be read completely.'))
+                    msg.warning(_('log file is very long, and will not be read completely.'))
             return True
         except IOError:
-            msg.debug (_('IO Error with log'))
+            msg.debug(_('IO Error with log'))
             return False
 
     #-- Process information {{{2
 
-    def errors (self):
+    def errors(self):
         """
         Returns true if there was an error during the compilation.
         """
@@ -204,7 +210,7 @@ class LogCheck (object):
 
     #-- Information extraction {{{2
 
-    def continued (self, line):
+    def continued(self, line):
         """
         Check if a line in the log is continued on the next line. This is
         needed because TeX breaks messages at 79 characters per line. We make
@@ -212,7 +218,7 @@ class LogCheck (object):
         """
         return len(line) == 79
 
-    def parse (self, errors=0, boxes=0, refs=0, warnings=0):
+    def parse(self, errors=0, boxes=0, refs=0, warnings=0):
         """
         Parse the log file for relevant information. The named arguments are
         booleans that indicate which information should be extracted:
@@ -232,13 +238,13 @@ class LogCheck (object):
         last_file = None
         pos = [last_file]
         page = 1
-        parsing = 0    # 1 if we are parsing an error's text
-        skipping = 0   # 1 if we are skipping text until an empty line
+        parsing = 0  # 1 if we are parsing an error's text
+        skipping = 0  # 1 if we are skipping text until an empty line
         something = 0  # 1 if some error was found
         prefix = None  # the prefix for warning messages from packages
-        accu = ""      # accumulated text from the previous line
-        macro = None   # the macro in which the error occurs
-        cseqs = {}     # undefined control sequences so far
+        accu = ""  # accumulated text from the previous line
+        macro = None  # the macro in which the error occurs
+        cseqs = {}  # undefined control sequences so far
         for line in self.lines:
             # TeX breaks messages at 79 characters, just to make parsing
             # trickier...
@@ -285,20 +291,17 @@ class LogCheck (object):
                             d = {
                                 "kind": "warning",
                                 "pkg": "pdfTeX",
-                                "text": error[error.find(":")+2:]
+                                "text": error[error.find(":") + 2:]
                             }
                         else:
-                            d =    {
-                                "kind": "error",
-                                "text": error
-                            }
-                        d.update( m.groupdict() )
+                            d = {"kind": "error", "text": error}
+                        d.update(m.groupdict())
                         m = re_ignored.search(error)
                         if m:
                             d["file"] = last_file
                             if "code" in d:
                                 del d["code"]
-                            d.update( m.groupdict() )
+                            d.update(m.groupdict())
                         elif pos[-1] is None:
                             d["file"] = last_file
                         else:
@@ -313,24 +316,15 @@ class LogCheck (object):
                     parsing = 0
                     skipping = 1
                     if errors:
-                        yield    {
-                            "kind": "abort",
-                            "text": error,
-                            "why" : line[4:],
-                            "file": last_file
-                            }
+                        yield {"kind": "abort", "text": error, "why": line[4:], "file": last_file}
                 elif line[0:15] == "Type X to quit ":
                     parsing = 0
                     skipping = 0
                     if errors:
-                        yield    {
-                            "kind": "error",
-                            "text": error,
-                            "file": pos[-1]
-                            }
+                        yield {"kind": "error", "text": error, "file": pos[-1]}
                 continue
 
-            if line.startswith ('!'):
+            if line.startswith('!'):
                 error = line[2:]
                 parsing = 1
                 continue
@@ -343,7 +337,7 @@ class LogCheck (object):
             if line[:17] == "Output written on":
                 continue
 
-            if line.startswith ('Missing character: '):
+            if line.startswith('Missing character: '):
                 error = line
                 parsing = 0
                 continue
@@ -361,8 +355,8 @@ class LogCheck (object):
                         text = text[:m.start()] + text[m.end():]
                     if warnings:
                         info["text"] = text
-                        d = { "kind": "warning" }
-                        d.update( info )
+                        d = {"kind": "warning"}
+                        d.update(info)
                         yield d
                     prefix = None
                 continue
@@ -372,23 +366,20 @@ class LogCheck (object):
             m = re_reference.match(line)
             if m:
                 if refs:
-                    d =    {
+                    d = {
                         "kind": "warning",
                         "text": _("Reference `%s' undefined.") % m.group("ref"),
                         "file": pos[-1]
-                        }
-                    d.update( m.groupdict() )
+                    }
+                    d.update(m.groupdict())
                     yield d
                 continue
 
             m = re_label.match(line)
             if m:
                 if refs:
-                    d =    {
-                        "kind": "warning",
-                        "file": pos[-1]
-                        }
-                    d.update( m.groupdict() )
+                    d = {"kind": "warning", "file": pos[-1]}
+                    d.update(m.groupdict())
                     yield d
                 continue
 
@@ -414,18 +405,16 @@ class LogCheck (object):
             m = re_badbox.match(line)
             if m:
                 if boxes:
-                    mpos = { "file": pos[-1], "page": page }
+                    mpos = {"file": pos[-1], "page": page}
                     m = re_atline.search(line)
                     if m:
                         md = m.groupdict()
                         for key in "line", "last":
-                            if md[key]: mpos[key] = md[key]
+                            if md[key]:
+                                mpos[key] = md[key]
                         line = line[:m.start()]
-                    d =    {
-                        "kind": "warning",
-                        "text": line
-                        }
-                    d.update( mpos )
+                    d = {"kind": "warning", "text": line}
+                    d.update(mpos)
                     yield d
                 skipping = 1
                 continue
@@ -434,7 +423,7 @@ class LogCheck (object):
             # each line represents a character and may contain a
             # closing parenthesis. This would confuse update_file().
             # The human-readable part has already been reported.
-            if re_rawbox.match (line):
+            if re_rawbox.match(line):
                 skipping = 1
                 continue
 
@@ -443,16 +432,19 @@ class LogCheck (object):
             last_file = self.update_file(line, pos, last_file)
             page = self.update_page(line, page)
 
-    def get_errors (self):
+    def get_errors(self):
         return self.parse(errors=1)
-    def get_boxes (self):
+
+    def get_boxes(self):
         return self.parse(boxes=1)
-    def get_references (self):
+
+    def get_references(self):
         return self.parse(refs=1)
-    def get_warnings (self):
+
+    def get_warnings(self):
         return self.parse(warnings=1)
 
-    def update_file (self, line, stack, last):
+    def update_file(self, line, stack, last):
         """
         Parse the given line of log file for file openings and closings and
         update the list `stack'. Newly opened files are at the end, therefore
@@ -463,17 +455,17 @@ class LogCheck (object):
         parenthesis).
         """
         while True:
-            m = re_file.search (line)
+            m = re_file.search(line)
             if not m:
                 return last
             if line[m.start()] == '(':
                 last = m.group("file")
                 stack.append(last)
             else:
-                last = stack.pop ()
+                last = stack.pop()
             line = line[m.end():]
 
-    def update_page (self, line, before):
+    def update_page(self, line, before):
         """
         Parse the given line and return the number of the page that is being
         built after that line, assuming the current page before the line was
@@ -484,33 +476,36 @@ class LogCheck (object):
             return before
         return int(ms[-1]) + 1
 
+
 #----  Parsing and compiling  ----{{{1
 
 re_command = re.compile("%[% ]*rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*).*")
 
-class SourceParser (rubber.tex.Parser):
+
+class SourceParser(rubber.tex.Parser):
     """
     Extends the general-purpose TeX parser to handle Rubber directives in the
     comment lines.
     """
-    def __init__ (self, file, dep):
-        super (SourceParser, self).__init__(file)
+
+    def __init__(self, file, dep):
+        super(SourceParser, self).__init__(file)
         self.latex_dep = dep
 
-    def read_line (self):
+    def read_line(self):
         while rubber.tex.Parser.read_line(self):
             match = re_command.match(self.line.strip())
             if match is None:
                 return True
 
-            vars = self.latex_dep.vars.copy ()
-            vars ['line'] = self.pos_line
+            vars = self.latex_dep.vars.copy()
+            vars['line'] = self.pos_line
             args = parse_line(match.group("arg"), vars)
 
             self.latex_dep.command(match.group("cmd"), args, vars)
         return False
 
-    def skip_until (self, expr):
+    def skip_until(self, expr):
         regexp = re.compile(expr)
         while rubber.tex.Parser.read_line(self):
             match = regexp.match(self.line)
@@ -520,15 +515,18 @@ class SourceParser (rubber.tex.Parser):
             self.pos_char += match.end()
             return
 
-class EndDocument (Exception):
+
+class EndDocument(Exception):
     """ This is the exception raised when \\end{document} is found. """
     pass
 
-class EndInput (Exception):
+
+class EndInput(Exception):
     """ This is the exception raised when \\endinput is found. """
     pass
 
-class LaTeXDep (rubber.depend.Node):
+
+class LaTeXDep(rubber.depend.Node):
     """
     This class represents dependency nodes for LaTeX compilation. It handles
     the cyclic LaTeX compilation until a stable output, including actual
@@ -545,7 +543,7 @@ class LaTeXDep (rubber.depend.Node):
 
     #--  Initialization  {{{2
 
-    def __init__ (self, env, path, jobname):
+    def __init__(self, env, path, jobname):
         """
         Initialize the environment. This prepares the processing steps for the
         given file (all steps are initialized empty) and sets the regular
@@ -557,7 +555,7 @@ class LaTeXDep (rubber.depend.Node):
         'jobname' specifies the job name to something else that
         the base of the file name.
         """
-        super ().__init__ ()
+        super().__init__()
         self.env = env
 
         self.log = LogCheck()
@@ -582,30 +580,28 @@ class LaTeXDep (rubber.depend.Node):
             "begin": ("a", self.h_begin),
             "end": ("a", self.h_end),
             "pdfoutput": ("", self.h_pdfoutput),
-            "input" : ("", self.h_input),
-            "include" : ("a", self.h_include),
+            "input": ("", self.h_input),
+            "include": ("a", self.h_include),
             "includeonly": ("a", self.h_includeonly),
-            "usepackage" : ("oa", self.h_usepackage),
-            "RequirePackage" : ("oa", self.h_usepackage),
-            "documentclass" : ("oa", self.h_documentclass),
-            "LoadClass" : ("oa", self.h_documentclass),
+            "usepackage": ("oa", self.h_usepackage),
+            "RequirePackage": ("oa", self.h_usepackage),
+            "documentclass": ("oa", self.h_documentclass),
+            "LoadClass": ("oa", self.h_documentclass),
             # LoadClassWithOptions doesn't take optional arguments, but
             # we recycle the same handler
-            "LoadClassWithOptions" : ("oa", self.h_documentclass),
-            "tableofcontents" : ("", self.h_tableofcontents),
-            "listoffigures" : ("", self.h_listoffigures),
-            "listoftables" : ("", self.h_listoftables),
-            "bibliography" : ("a", self.h_bibliography),
-            "bibliographystyle" : ("a", self.h_bibliographystyle),
-            "endinput" : ("", self.h_endinput)
+            "LoadClassWithOptions": ("oa", self.h_documentclass),
+            "tableofcontents": ("", self.h_tableofcontents),
+            "listoffigures": ("", self.h_listoffigures),
+            "listoftables": ("", self.h_listoftables),
+            "bibliography": ("a", self.h_bibliography),
+            "bibliographystyle": ("a", self.h_bibliographystyle),
+            "endinput": ("", self.h_endinput)
         }
         self.begin_hooks = {
             "verbatim": self.h_begin_verbatim,
             "verbatim*": lambda loc: self.h_begin_verbatim(loc, env="verbatim\\*")
         }
-        self.end_hooks = {
-            "document": self.h_end_document
-        }
+        self.end_hooks = {"document": self.h_end_document}
 
         self.include_only = {}
 
@@ -623,7 +619,7 @@ class LaTeXDep (rubber.depend.Node):
         self.failed_module = None
 
         assert os.path.exists(path)
-        assert len (self.sources) == 0
+        assert len(self.sources) == 0
         self.vars['source'] = path
         (src_path, name) = os.path.split(path)
         # derive jobname, which latex uses as the basename for all output
@@ -642,32 +638,32 @@ class LaTeXDep (rubber.depend.Node):
         if '"' in path:
             msg.error(_("The filename contains \", latex cannot handle this."))
             return 1
-        if any (c in path for c in " \n\t()"):
-            msg.warning (_("Source path uses special characters, error tracking might get confused."))
+        if any(c in path for c in " \n\t()"):
+            msg.warning(_("Source path uses special characters, error tracking might get confused."))
 
-        self.add_product (self.basename (with_suffix=".dvi"))
-        self.add_product (self.basename (with_suffix=".log"))
+        self.add_product(self.basename(with_suffix=".dvi"))
+        self.add_product(self.basename(with_suffix=".log"))
 
         # always expect a primary aux file
-        self.new_aux_file (self.basename (with_suffix=".aux"))
-        self.add_product (self.basename (with_suffix=".synctex.gz"))
+        self.new_aux_file(self.basename(with_suffix=".aux"))
+        self.add_product(self.basename(with_suffix=".synctex.gz"))
 
-    def basename (self, with_suffix=""):
+    def basename(self, with_suffix=""):
         return self.vars["job"] + with_suffix
 
-    def register_post_processor (self, old_suffix, new_suffix):
+    def register_post_processor(self, old_suffix, new_suffix):
         if self.env.final != self \
            and not self.primary_product ().endswith (old_suffix):
-            raise GenericError (_("there is already a post-processor registered"))
-        self.replace_product (self.basename (with_suffix=new_suffix))
+            raise GenericError(_("there is already a post-processor registered"))
+        self.replace_product(self.basename(with_suffix=new_suffix))
 
-    def new_aux_file (self, aux_file):
+    def new_aux_file(self, aux_file):
         """Register a new latex .aux file"""
-        self.add_source (aux_file)
-        self.add_product (aux_file)
-        self.aux_files.append (aux_file)
+        self.add_source(aux_file)
+        self.add_product(aux_file)
+        self.aux_files.append(aux_file)
 
-    def includeonly (self, files):
+    def includeonly(self, files):
         """
         Use partial compilation, by appending a call to \\includeonly on the
         command line on compilation.
@@ -681,10 +677,10 @@ class LaTeXDep (rubber.depend.Node):
             self.cmdline[-2] = "\\includeonly{" + files + "}"
         else:
             self.cmdline.insert(-1, "\\includeonly{" + files + "}")
-        for f in files.split (','):
+        for f in files.split(','):
             self.include_only[f] = None
 
-    def source (self):
+    def source(self):
         """
         Return the main source's complete filename.
         """
@@ -692,7 +688,7 @@ class LaTeXDep (rubber.depend.Node):
 
     #--  LaTeX source parsing  {{{2
 
-    def parse (self):
+    def parse(self):
         """
         Parse the source for packages and supported macros.
         """
@@ -700,9 +696,9 @@ class LaTeXDep (rubber.depend.Node):
             self.process(self.source())
         except EndDocument:
             pass
-        msg.debug (_("dependencies: %s"), " ".join (self.sources))
+        msg.debug(_("dependencies: %s"), " ".join(self.sources))
 
-    def parse_file (self, file):
+    def parse_file(self, file):
         """
         Process a LaTeX source. The file must be open, it is read to the end
         calling the handlers for the macro calls. This recursively processes
@@ -730,7 +726,7 @@ class LaTeXDep (rubber.depend.Node):
             self.vars['line'] = parser.pos_line
             function(self.vars, *args)
 
-    def process (self, path):
+    def process(self, path):
         """
         This method is called when an included file is processed. The argument
         must be a valid file name.
@@ -739,15 +735,15 @@ class LaTeXDep (rubber.depend.Node):
             msg.debug(_("%s already parsed") % path)
             return
         self.processed_sources[path] = None
-        self.add_source (path)
+        self.add_source(path)
 
         try:
-            saved_vars = self.vars.copy ()
+            saved_vars = self.vars.copy()
             try:
                 msg.debug(_("parsing %s") % path)
-                self.vars ["file"] = path
-                self.vars ["line"] = None
-                with open (path, encoding='utf_8', errors='replace') as file:
+                self.vars["file"] = path
+                self.vars["line"] = None
+                with open(path, encoding='utf_8', errors='replace') as file:
                     self.parse_file(file)
 
             finally:
@@ -757,7 +753,7 @@ class LaTeXDep (rubber.depend.Node):
         except EndInput:
             pass
 
-    def input_file (self, name, loc={}):
+    def input_file(self, name, loc={}):
         """
         Treat the given name as a source file to be read. If this source can
         be the result of some conversion, then the conversion is performed,
@@ -772,18 +768,18 @@ class LaTeXDep (rubber.depend.Node):
         for path in self.env.path:
 
             pname = os.path.join(path, name)
-            dep = self.env.convert(pname, suffixes=[".tex",""], context=self.vars)
-            if isinstance (dep, str):
-                self.process (dep)
+            dep = self.env.convert(pname, suffixes=[".tex", ""], context=self.vars)
+            if isinstance(dep, str):
+                self.process(dep)
                 return dep
-            if isinstance (dep, rubber.depend.Node):
-                file = dep.primary_product ()
+            if isinstance(dep, rubber.depend.Node):
+                file = dep.primary_product()
                 # Do not process this source.
-                self.add_source (file)
+                self.add_source(file)
                 return file
             assert dep is None
 
-            file = self.env.find_file (name, ".tex")
+            file = self.env.find_file(name, ".tex")
             if file is not None:
                 self.process(file)
                 return file
@@ -792,7 +788,7 @@ class LaTeXDep (rubber.depend.Node):
 
     #--  Directives  {{{2
 
-    def command (self, cmd, args, pos=None):
+    def command(self, cmd, args, pos=None):
         """
         Execute the rubber command 'cmd' with arguments 'args'. This is called
         when a command is found in the source file or in a configuration file.
@@ -809,83 +805,83 @@ class LaTeXDep (rubber.depend.Node):
             self.modules.command(lst[0], lst[1], args)
         else:
             try:
-                handler = getattr (self, "do_" + cmd)
+                handler = getattr(self, "do_" + cmd)
             except AttributeError:
-                raise rubber.GenericError (rubber.util._format (pos, _("unknown directive '%s'") % cmd))
-            msg.debug (_("directive: %s %s") % (cmd, ' '.join (args)))
-            handler (args)
+                raise rubber.GenericError(rubber.util._format(pos, _("unknown directive '%s'") % cmd))
+            msg.debug(_("directive: %s %s") % (cmd, ' '.join(args)))
+            handler(args)
 
-    def do_alias (self, args):
-        if len (args) != 2:
-            raise rubber.SyntaxError (_("invalid syntax for directive '%s'") % "alias")
+    def do_alias(self, args):
+        if len(args) != 2:
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % "alias")
         name, val = args
         try:
-            h = self.hooks [val]
+            h = self.hooks[val]
         except KeyError:
-            raise rubber.SyntaxError (_("cannot alias unknown name %s") % val)
-        self.hooks [name] = h
+            raise rubber.SyntaxError(_("cannot alias unknown name %s") % val)
+        self.hooks[name] = h
         self.hooks_version += 1
 
-    def do_clean (self, args):
+    def do_clean(self, args):
         for arg in args:
-            self.add_product (arg)
+            self.add_product(arg)
 
-    def do_depend (self, args):
+    def do_depend(self, args):
         for arg in args:
             file = self.env.find_file(arg)
             if file:
                 self.add_source(file)
             else:
-                msg.warning (rubber.util._format (self.vars, _("dependency '%s' not found") % arg))
+                msg.warning(rubber.util._format(self.vars, _("dependency '%s' not found") % arg))
 
-    def do_make (self, args):
-        if len (args) % 2 != 1:
-            raise rubber.SyntaxError (_("invalid syntax for directive '%s'") % "make")
-        file = args [0]
-        vars = { "target": file }
-        for i in range (1, len (args), 2):
-            if args [i] == "from":
-                vars ["source"] = args [i + 1]
-            elif args [i] == "with":
-                vars ["name"] = args[1 + 1]
+    def do_make(self, args):
+        if len(args) % 2 != 1:
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % "make")
+        file = args[0]
+        vars = {"target": file}
+        for i in range(1, len(args), 2):
+            if args[i] == "from":
+                vars["source"] = args[i + 1]
+            elif args[i] == "with":
+                vars["name"] = args[1 + 1]
             else:
-                raise rubber.SyntaxError (_("invalid syntax for directive '%s'") % "make")
+                raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % "make")
         self.env.conv_set(file, vars)
 
-    def do_module (self, args):
-        if 0 == len (args) or 2 < len (args):
-            raise rubber.SyntaxError (_("invalid syntax for directive '%s'") % "module")
-        self.modules.register (*args)
+    def do_module(self, args):
+        if 0 == len(args) or 2 < len(args):
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % "module")
+        self.modules.register(*args)
 
-    def do_onchange (self, args):
-        if len (args) != 2:
-            raise rubber.SyntaxError (_("invalid syntax for directive '%s'") % "onchange")
+    def do_onchange(self, args):
+        if len(args) != 2:
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % "onchange")
         file, cmd = args
         if self.env.is_in_unsafe_mode_:
             # A list, because we will update the snapshot later.
-            self.onchange.append ([file, rubber.contents.snapshot (file), cmd])
+            self.onchange.append([file, rubber.contents.snapshot(file), cmd])
         else:
-            msg.warning (_("Rubber directive 'onchange' is valid only in unsafe mode"))
+            msg.warning(_("Rubber directive 'onchange' is valid only in unsafe mode"))
 
-    def do_paper (self, args):
-        msg.warning (_("Rubber directive 'paper' is no longer supported"))
+    def do_paper(self, args):
+        msg.warning(_("Rubber directive 'paper' is no longer supported"))
 
-    def do_path (self, args):
-        if len (args) != 1:
-            raise rubber.SyntaxError (_("invalid syntax for directive '%s'") % "path")
-        name = args [0]
+    def do_path(self, args):
+        if len(args) != 1:
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % "path")
+        name = args[0]
         self.env.path.append(name)
 
-    def do_read (self, args):
-        if len (args) != 1:
-            raise rubber.SyntaxError (_("invalid syntax for directive '%s'") %  "read")
-        name = args [0]
+    def do_read(self, args):
+        if len(args) != 1:
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % "read")
+        name = args[0]
         saved_vars = self.vars
         try:
-            self.vars = self.vars.copy ()
-            self.vars ["file"] = name
-            self.vars ["line"] = None
-            with open (name, encoding='utf_8', errors='replace') as file:
+            self.vars = self.vars.copy()
+            self.vars["file"] = name
+            self.vars["line"] = None
+            with open(name, encoding='utf_8', errors='replace') as file:
                 lineno = 0
                 for line in file:
                     lineno += 1
@@ -896,92 +892,96 @@ class LaTeXDep (rubber.depend.Node):
                     lst = parse_line(line, self.vars)
                     self.command(lst[0], lst[1:])
         except IOError:
-            msg.warning (rubber.util._format (self.vars, _("cannot read option file %s") % name))
+            msg.warning(rubber.util._format(self.vars, _("cannot read option file %s") % name))
         finally:
             self.vars = saved_vars
 
-    def do_rules (self, args):
-        if len (args) != 1:
-            raise rubber.SyntaxError (rubber.util._format (self.vars, _("invalid syntax for directive '%s'") % cmd))
-        file = args [0]
+    def do_rules(self, args):
+        if len(args) != 1:
+            raise rubber.SyntaxError(rubber.util._format(self.vars, _("invalid syntax for directive '%s'") % cmd))
+        file = args[0]
         name = self.env.find_file(file)
         if name is None:
-            msg.warning (rubber.util._format (self.vars, _("cannot read rule file %s") % file))
+            msg.warning(rubber.util._format(self.vars, _("cannot read rule file %s") % file))
         else:
             self.env.converter.read_ini(name)
 
-    def do_set (self, args):
-        if len (args) != 2:
-            raise rubber.SyntaxError (rubber.util._format (self.vars, _("invalid syntax for directive '%s'") % cmd))
+    def do_set(self, args):
+        if len(args) != 2:
+            raise rubber.SyntaxError(rubber.util._format(self.vars, _("invalid syntax for directive '%s'") % cmd))
         name, val = args
         if name in ('arguments',):
-            msg.warning (_("cannot set list-type variable to scalar: set %s %s (ignored; use setlist, not set)") % (name, val))
+            msg.warning(_("cannot set list-type variable to scalar: set %s %s (ignored; use setlist, not set)") % (name, val))
         elif name in ('job',):
-            msg.warning (_("variable %s is read-only, please see the manual") % name)
+            msg.warning(_("variable %s is read-only, please see the manual") % name)
         elif name in ('logfile_limit',):
-                try:
-                    val = int (val)
-                except:
-                    msg.warning (_("cannot set int variable %s to value %s (ignored)") % (name, val))
-                else:
-                    setattr (self, name, val)
+            try:
+                val = int(val)
+            except:
+                msg.warning(_("cannot set int variable %s to value %s (ignored)") % (name, val))
+            else:
+                setattr(self, name, val)
         elif name in ('src-specials',):
-            setattr (self, name, val)
-        elif name in ('engine', 'file', 'line',):
-            msg.warning (_("variable %s is deprecated, please see the manual") % name)
+            setattr(self, name, val)
+        elif name in (
+                'engine',
+                'file',
+                'line',
+        ):
+            msg.warning(_("variable %s is deprecated, please see the manual") % name)
         else:
-            msg.warning (rubber.util._format (self.vars, _("unknown variable: %s") % name))
+            msg.warning(rubber.util._format(self.vars, _("unknown variable: %s") % name))
 
-    def do_shell_escape (self, args):
-        if len (args) != 0:
-            raise rubber.SyntaxError (rubber.util._format (self.vars, _("invalid syntax for directive '%s'") % cmd))
+    def do_shell_escape(self, args):
+        if len(args) != 0:
+            raise rubber.SyntaxError(rubber.util._format(self.vars, _("invalid syntax for directive '%s'") % cmd))
         self.env.doc_requires_shell_ = True
 
-    def do_synctex (self, args):
-        if len (args) != 0:
-            raise rubber.SyntaxError (_("invalid syntax for directive '%s'") % cmd)
+    def do_synctex(self, args):
+        if len(args) != 0:
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % cmd)
         self.env.synctex = True
 
-    def do_setlist (self, args):
-        if len (args) == 0:
-            raise rubber.SyntaxError (_("invalid syntax for directive '%s'") % cmd)
-        name, val = args [0], args [1:]
+    def do_setlist(self, args):
+        if len(args) == 0:
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % cmd)
+        name, val = args[0], args[1:]
         if name in ('arguments',):
-            self.arguments.extend (val)
+            self.arguments.extend(val)
         else:
-            msg.warning (rubber.util._format (self.vars, _("unknown list variable: %s") % name))
+            msg.warning(rubber.util._format(self.vars, _("unknown list variable: %s") % name))
 
-    def do_produce (self, args):
+    def do_produce(self, args):
         for arg in args:
             self.add_product(arg)
 
-    def do_watch (self, args):
+    def do_watch(self, args):
         for arg in args:
             self.watch_file(arg)
 
     #--  Macro handling  {{{2
 
-    def hook_macro (self, name, format, fun):
+    def hook_macro(self, name, format, fun):
         self.hooks[name] = (format, fun)
         self.hooks_version += 1
 
-    def hook_begin (self, name, fun):
+    def hook_begin(self, name, fun):
         self.begin_hooks[name] = fun
 
-    def hook_end (self, name, fun):
+    def hook_end(self, name, fun):
         self.end_hooks[name] = fun
 
     # Now the macro handlers:
 
-    def h_begin (self, loc, env):
+    def h_begin(self, loc, env):
         if env in self.begin_hooks:
             self.begin_hooks[env](loc)
 
-    def h_end (self, loc, env):
+    def h_end(self, loc, env):
         if env in self.end_hooks:
             self.end_hooks[env](loc)
 
-    def h_pdfoutput (self, loc):
+    def h_pdfoutput(self, loc):
         """
         Called when \\pdfoutput is found. Tries to guess if it is a definition
         that asks for the output to be in PDF or DVI.
@@ -1009,14 +1009,14 @@ class LaTeXDep (rubber.depend.Node):
             if 'pdftex' in self.modules:
                 self.modules['pdftex'].mode_dvi()
             else:
-                self.modules.register ('pdftex', opt='dvi')
+                self.modules.register('pdftex', opt='dvi')
         else:
             if 'pdftex' in self.modules:
                 self.modules['pdftex'].mode_pdf()
             else:
                 self.modules.register('pdftex')
 
-    def h_input (self, loc):
+    def h_input(self, loc):
         """
         Called when an \\input macro is found. This calls the `process' method
         if the included file is found.
@@ -1031,7 +1031,7 @@ class LaTeXDep (rubber.depend.Node):
                 token = self.parser.get_token()
         _ = self.input_file(file, loc)
 
-    def h_include (self, loc, filename):
+    def h_include(self, loc, filename):
         """
         Called when an \\include macro is found. This includes files into the
         source in a way very similar to \\input, except that LaTeX also
@@ -1041,9 +1041,9 @@ class LaTeXDep (rubber.depend.Node):
             return
         file = self.input_file(filename, loc)
         if file:
-            self.new_aux_file (filename + ".aux")
+            self.new_aux_file(filename + ".aux")
 
-    def h_includeonly (self, loc, files):
+    def h_includeonly(self, loc, files):
         """
         Called when the macro \\includeonly is found, indicates the
         comma-separated list of files that should be included, so that the
@@ -1055,7 +1055,7 @@ class LaTeXDep (rubber.depend.Node):
             if name != "":
                 self.include_only[name] = None
 
-    def h_documentclass (self, loc, opt, name):
+    def h_documentclass(self, loc, opt, name):
         """
         Called when the macro \\documentclass is found. It almost has the same
         effect as `usepackage': if the source's directory contains the class
@@ -1066,9 +1066,9 @@ class LaTeXDep (rubber.depend.Node):
         if file:
             self.process(file)
         else:
-            self.modules.register (name, opt=opt, maybe_missing=True)
+            self.modules.register(name, opt=opt, maybe_missing=True)
 
-    def h_usepackage (self, loc, opt, names):
+    def h_usepackage(self, loc, opt, names):
         """
         Called when a \\usepackage macro is found. If there is a package in the
         directory of the source file, then it is treated as an include file
@@ -1076,47 +1076,50 @@ class LaTeXDep (rubber.depend.Node):
         """
         for name in names.split(","):
             name = name.strip()
-            if name == '': continue  # \usepackage{a,}
+            if name == '':
+                continue  # \usepackage{a,}
             file = self.env.find_file(name + ".sty")
             if file:
                 self.process(file)
             else:
-                self.modules.register (name, opt=opt, maybe_missing=True)
+                self.modules.register(name, opt=opt, maybe_missing=True)
 
-    def h_tableofcontents (self, loc):
-        self.add_product(self.basename (with_suffix=".toc"))
-        self.add_source (self.basename (with_suffix=".toc"))
-    def h_listoffigures (self, loc):
-        self.add_product(self.basename (with_suffix=".lof"))
-        self.add_source (self.basename (with_suffix=".lof"))
-    def h_listoftables (self, loc):
-        self.add_product(self.basename (with_suffix=".lot"))
-        self.add_source (self.basename (with_suffix=".lot"))
+    def h_tableofcontents(self, loc):
+        self.add_product(self.basename(with_suffix=".toc"))
+        self.add_source(self.basename(with_suffix=".toc"))
 
-    def h_bibliography (self, loc, names):
+    def h_listoffigures(self, loc):
+        self.add_product(self.basename(with_suffix=".lof"))
+        self.add_source(self.basename(with_suffix=".lof"))
+
+    def h_listoftables(self, loc):
+        self.add_product(self.basename(with_suffix=".lot"))
+        self.add_source(self.basename(with_suffix=".lot"))
+
+    def h_bibliography(self, loc, names):
         """
         Called when the macro \\bibliography is found. This method actually
         registers the module bibtex (if not already done) and registers the
         databases.
         """
-        self.modules.register ("bibtex")
+        self.modules.register("bibtex")
         # This registers the actual hooks, so that subsequent occurrences of
         # \bibliography and \bibliographystyle will be caught by the module.
         # However, the first time, we have to call the hooks from here. The
         # line below assumes that the new hook has the same syntax.
         self.hooks['bibliography'][1](loc, names)
 
-    def h_bibliographystyle (self, loc, name):
+    def h_bibliographystyle(self, loc, name):
         """
         Called when \\bibliographystyle is found. This registers the module
         bibtex (if not already done) and calls the method set_style() of the
         module.
         """
-        self.modules.register ("bibtex")
+        self.modules.register("bibtex")
         # The same remark as in 'h_bibliography' applies here.
         self.hooks['bibliographystyle'][1](loc, name)
 
-    def h_begin_verbatim (self, loc, env="verbatim"):
+    def h_begin_verbatim(self, loc, env="verbatim"):
         """
         Called when \\begin{verbatim} is found. This disables all macro
         handling and comment parsing until the end of the environment. The
@@ -1125,14 +1128,14 @@ class LaTeXDep (rubber.depend.Node):
         """
         self.parser.skip_until(r"[ \t]*\\end\{%s\}.*" % env)
 
-    def h_endinput (self, loc):
+    def h_endinput(self, loc):
         """
         Called when \\endinput is found. This stops the processing of the
         current input file, thus ignoring any code that appears afterwards.
         """
         raise EndInput
 
-    def h_end_document (self, loc):
+    def h_end_document(self, loc):
         """
         Called when \\end{document} is found. This stops the processing of any
         input file, thus ignoring any code that appears afterwards.
@@ -1141,12 +1144,12 @@ class LaTeXDep (rubber.depend.Node):
 
     #--  Compilation steps  {{{2
 
-    def compile (self):
+    def compile(self):
         """
         Run one LaTeX compilation on the source. Return true on success or
         false if errors occured.
         """
-        msg.info (_("compiling %s"), self.source)
+        msg.info(_("compiling %s"), self.source)
 
         file = self.source()
 
@@ -1159,7 +1162,7 @@ class LaTeXDep (rubber.depend.Node):
             if self.engine == "VTeX":
                 msg.error(_("I don't know how set the job name with VTeX."))
             else:
-                cmd.append("-jobname=" + self.basename ())
+                cmd.append("-jobname=" + self.basename())
 
         specials = self.src_specials
         if specials != "":
@@ -1172,27 +1175,27 @@ class LaTeXDep (rubber.depend.Node):
                 cmd.append("-src-specials=" + specials)
 
         if self.env.is_in_unsafe_mode_:
-            cmd.append ('--shell-escape')
+            cmd.append('--shell-escape')
         elif self.env.doc_requires_shell_:
-            msg.error (_("the document tries to run external programs which could be dangerous.  use rubber --unsafe if the document is trusted."))
+            msg.error(_("the document tries to run external programs which could be dangerous.  use rubber --unsafe if the document is trusted."))
 
         if self.env.synctex:
-            cmd.append ("-synctex=1")
+            cmd.append("-synctex=1")
 
         # arguments inserted by the document allowed only in unsafe mode, since
         # this could do arbitrary things such as enable shell escape (write18)
         if self.env.is_in_unsafe_mode_:
-            cmd.extend (self.arguments)
-        elif len (self.arguments) > 0:
-            msg.error (_("the document tries to modify the LaTeX command line which could be dangerous.  use rubber --unsafe if the document is trusted."))
+            cmd.extend(self.arguments)
+        elif len(self.arguments) > 0:
+            msg.error(_("the document tries to modify the LaTeX command line which could be dangerous.  use rubber --unsafe if the document is trusted."))
 
-        cmd.extend (x.replace ("%s", file) for x in self.cmdline)
+        cmd.extend(x.replace("%s", file) for x in self.cmdline)
 
         # Remove the CWD from elements in the path, to avoid potential problems
         # with special characters if there are any (except that ':' in paths
         # is not handled).
 
-        inputs = ":".join (self.env.path)
+        inputs = ":".join(self.env.path)
 
         if inputs == "":
             env = {}
@@ -1200,34 +1203,34 @@ class LaTeXDep (rubber.depend.Node):
             inputs = inputs + ":" + os.getenv("TEXINPUTS", "")
             env = {"TEXINPUTS": inputs}
 
-        exit_code = rubber.util.execute (cmd, env=env)
+        exit_code = rubber.util.execute(cmd, env=env)
 
         # Call parse_log() even though we may already know that the
         # command failed due a non-zero exit code. This ensures that
         # parse_log() is able to get a detailed error description from
         # the logs.
-        log_could_be_parsed = self.parse_log ()
+        log_could_be_parsed = self.parse_log()
 
         if exit_code != 0:
-            msg.error(_("Running %s resulted in a non-zero exit status."), cmd [0])
+            msg.error(_("Running %s resulted in a non-zero exit status."), cmd[0])
             return False
         if not log_could_be_parsed:
             msg.error(_("Running %s failed.") % cmd[0])
             return False
         if self.log.errors():
             return False
-        if not os.access (self.primary_product (), os.F_OK):
-            msg.error (_("Output file `%s' was not produced."),
-                       self.primary_product ())
+        if not os.access(self.primary_product(), os.F_OK):
+            msg.error(_("Output file `%s' was not produced."),
+                      self.primary_product())
             return False
         return True
 
-    def parse_log (self):
-        logfile_name = self.basename (with_suffix=".log")
+    def parse_log(self):
+        logfile_name = self.basename(with_suffix=".log")
         logfile_limit = self.logfile_limit
-        return self.log.readlog (logfile_name, logfile_limit)
+        return self.log.readlog(logfile_name, logfile_limit)
 
-    def pre_compile (self):
+    def pre_compile(self):
         """
         Prepare the source for compilation using package-specific functions.
         This function must return False on failure.
@@ -1240,7 +1243,7 @@ class LaTeXDep (rubber.depend.Node):
                 return False
         return True
 
-    def post_compile (self):
+    def post_compile(self):
         """
         Run the package-specific operations that are to be performed after
         each compilation of the main source. Returns true on success or false
@@ -1250,16 +1253,16 @@ class LaTeXDep (rubber.depend.Node):
 
         for l in self.onchange:
             (file, old_contents, cmd) = l
-            new = rubber.contents.snapshot (file)
+            new = rubber.contents.snapshot(file)
             if old_contents != new:
                 # An exception should already have been raised if the
                 # file has disappeared.
                 assert new != rubber.contents.NO_SUCH_FILE
-                l [1] = new
-                msg.info (_("running %s") % cmd)
+                l[1] = new
+                msg.info(_("running %s") % cmd)
                 # FIXME portability issue: explicit reference to shell
-                if rubber.util.execute (("sh", "-c", cmd)) != 0:
-                    msg.error (_("command '%s' returned a non-zero status"), cmd)
+                if rubber.util.execute(("sh", "-c", cmd)) != 0:
+                    msg.error(_("command '%s' returned a non-zero status"), cmd)
                     return False
 
         for mod in self.modules.objects.values():
@@ -1268,17 +1271,17 @@ class LaTeXDep (rubber.depend.Node):
                 return False
         return True
 
-    def clean (self):
+    def clean(self):
         """
         Run clean method of LaTeX modules.
         """
-        msg.debug (_("cleaning LaTeX modules..."))
+        msg.debug(_("cleaning LaTeX modules..."))
         for mod in self.modules.objects.values():
             mod.clean()
 
     #--  Building routine  {{{2
 
-    def run (self):
+    def run(self):
         """
         Run the building process until the last compilation, or stop on error.
         This method supposes that the inputs were parsed to register packages
@@ -1302,27 +1305,27 @@ class LaTeXDep (rubber.depend.Node):
 
     #--  Utility methods  {{{2
 
-    def get_errors (self):
+    def get_errors(self):
         if self.failed_module is None:
             return self.log.get_errors()
         else:
             return self.failed_module.get_errors()
 
-    def watch_file (self, filename):
+    def watch_file(self, filename):
         """
         Register the given file (typically "jobname.toc" or such) to be
         watched. When the file changes during a compilation, it means that
         another compilation has to be done.
         """
-        self.add_source (filename)
+        self.add_source(filename)
 
-    def remove_suffixes (self, list):
+    def remove_suffixes(self, list):
         """
         Remove all files derived from the main source with one of the
         specified suffixes.
         """
         for suffix in list:
-            file = self.basename (with_suffix=suffix)
-            if os.path.exists (file):
-                msg.info (_("removing %s"), file)
-                os.remove (file)
+            file = self.basename(with_suffix=suffix)
+            if os.path.exists(file):
+                msg.info(_("removing %s"), file)
+                os.remove(file)

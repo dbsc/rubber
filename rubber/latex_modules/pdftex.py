@@ -10,8 +10,10 @@ DVI using pdfTeX.
 
 import rubber.module_interface
 
-class Module (rubber.module_interface.Module):
-    def __init__ (self, document, opt):
+
+class Module(rubber.module_interface.Module):
+
+    def __init__(self, document, opt):
         self.doc = document
         self.mode = None
         document.program = 'pdflatex'
@@ -21,17 +23,16 @@ class Module (rubber.module_interface.Module):
         else:
             self.mode_pdf()
 
-    def mode_pdf (self):
+    def mode_pdf(self):
         if self.mode == 'pdf':
             return
-        self.doc.register_post_processor (old_suffix='.pdf', new_suffix='.pdf')
-        self.doc.cmdline = [
-            opt for opt in self.doc.cmdline if opt != '\\pdfoutput=0']
+        self.doc.register_post_processor(old_suffix='.pdf', new_suffix='.pdf')
+        self.doc.cmdline = [opt for opt in self.doc.cmdline if opt != '\\pdfoutput=0']
         self.mode = 'pdf'
 
-    def mode_dvi (self):
+    def mode_dvi(self):
         if self.mode == 'dvi':
             return
-        self.doc.register_post_processor (old_suffix='.dvi', new_suffix='.dvi')
+        self.doc.register_post_processor(old_suffix='.dvi', new_suffix='.dvi')
         self.doc.cmdline.insert(0, '\\pdfoutput=0')
         self.mode = 'dvi'

@@ -1,3 +1,8 @@
+Upcoming Version
+
+  - Add support for LuaTeX via the lualatex module
+  - Introduce rubbercache for faster compilations
+
 Version 1.5.1 (2018-09-12)
 
   Fix two severe regressions in the python3 port.

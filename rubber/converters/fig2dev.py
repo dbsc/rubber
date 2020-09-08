@@ -40,7 +40,6 @@ def convert(source, target, context, env):
 
         the_dot = target.rfind('.')
         base_name = target[:the_dot]
-        extension = target[the_dot + 1:]
         image_reference = base_name[base_name.rfind('/') + 1:]
 
         if '.pdf' in env.graphics_suffixes:

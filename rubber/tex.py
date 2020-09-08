@@ -89,7 +89,7 @@ class Position:
     def __str__(self):
         text = ''
         if self.file:
-            text = file + ':'
+            text = self.file + ':'
         if self.line is not None:
             if text != '':
                 text += ':'
@@ -187,6 +187,8 @@ class ParserBase(object):
         """
         if len(self.next) > 0:
             return self.next[-1]
+        # TODO: read_token() should be an abstract method.
+        # pylint: disable=no-member
         token = self.read_token()
         self.put_token(token)
         return token
@@ -198,13 +200,20 @@ class ParserBase(object):
         if len(self.next) > 0:
             token = self.next.pop()
         else:
-            token = self.read_token()
+            # TODO: read_token() should be an abstract method.
+            token = self.read_token()  # pylint: disable=no-member
 
         # skip over comment
         if token.cat == COMMENT:
             assert len(self.next) == 0
+            # TODO: next_char() should be an abstract method.
+            # pylint: disable=no-member
             assert self.next_char is None
+            # TODO: read_line() should be an abstract method.
+            # pylint: disable=no-member
             self.read_line()
+            # TODO: read_token() should be an abstract method.
+            # pylint: disable=no-member
             return self.read_token()
 
         if token.cat == MATH:

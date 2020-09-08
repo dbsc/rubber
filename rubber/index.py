@@ -4,6 +4,8 @@
 """
 Common support for makeindex and xindy external tools.
 """
+
+import os
 import logging
 msg = logging.getLogger(__name__)
 import rubber.depend
@@ -44,7 +46,7 @@ class Index(rubber.depend.Node):
 
     def do_language(self, args):
         if len(args) != 1:
-            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % cmd)
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % args)
         lang = args[0]
         self.lang = lang
 
@@ -78,7 +80,7 @@ class Index(rubber.depend.Node):
         if len(args) != 1:
             raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % "tool")
         tool = args[0]
-        if tol not in ("makeindex", "xindy"):
+        if tool not in ("makeindex", "xindy"):
             msg.error(_("unknown indexing tool '%s'") % tool)
         self.cmd[0] = tool
 

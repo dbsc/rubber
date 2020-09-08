@@ -15,7 +15,7 @@ optional argument first, enclosed in parentheses as in "multibib.path
 argument, they apply to all bibliographies.
 """
 
-import os, os.path, re
+import re
 from rubber.util import _
 import logging
 msg = logging.getLogger(__name__)

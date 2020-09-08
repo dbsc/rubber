@@ -207,7 +207,6 @@ def extract_version():
             if line.startswith("Version"):
                 break
     match = re.match(r'^Version ([0-9.]+) ', line)
-    assert match, "Line 1 of " + news + " does not match '" + pattern + "'."
     return match.group(1)
 
 

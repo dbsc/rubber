@@ -65,9 +65,13 @@ class Module(rubber.module_interface.Module):
         """
         index = self.indices[name] = Index(self.doc, idx, ind, ilg)
         for command in self.defaults:
+            # TODO: Remove pylint suppression.
+            # pylint: disable=no-member
             index.command(*command)
         if name in self.commands:
             for command in self.commands[name]:
+                # TODO: Remove pylint suppression.
+                # pylint: disable=no-member
                 index.command(*command)
 
     def hook_makeindex(self, loc):

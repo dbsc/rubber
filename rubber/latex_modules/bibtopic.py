@@ -22,7 +22,6 @@ The .aux must then be processed by 'bibtex' to produce a more
 interesting .bbl, and also a .bbl log.
 """
 
-import os.path
 from rubber.util import _
 import logging
 msg = logging.getLogger(__name__)

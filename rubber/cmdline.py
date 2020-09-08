@@ -24,6 +24,7 @@ import rubber.util
 
 try:
     import rubber.version
+    # pylint: disable=E1101
     RUBBER_VERSION = rubber.version.version
 except ImportError:
     RUBBER_VERSION = "unknown"
@@ -304,7 +305,7 @@ def parse_opts(command_name):
 
     if command_name == RUBBER_PLAIN and args.clean \
        and (args.warn_boxes or args.warn_refs or args.warn_misc):
-        raise rubber.Syntaxerror('incompatible options: --clean and --warn')
+        raise rubber.SyntaxError('incompatible options: --clean and --warn')
 
     logLevel = logging.WARNING
     if args.verbose:

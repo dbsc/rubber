@@ -4,7 +4,7 @@ rule management.
 """
 
 import re, imp, os.path
-from configparser import ConfigParser
+from configparser import ConfigParser, ParsingError, NoOptionError
 import logging
 msg = logging.getLogger(__name__)
 from rubber.util import _

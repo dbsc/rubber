@@ -14,9 +14,10 @@ import rubber.depend
 import os
 import re
 import subprocess
+from abc import ABC, abstractmethod
 
 
-class BibToolDep(rubber.depend.Node):
+class BibToolDep(rubber.depend.Node, ABC):
 
     def __init__(self):
         super().__init__()
@@ -24,6 +25,11 @@ class BibToolDep(rubber.depend.Node):
         self.environ = os.environ.copy()
         self.bib_paths = rubber.util.explode_path("BIBINPUTS")
         self.bst_paths = rubber.util.explode_path("BSTINPUTS")
+        self.blg = None
+
+    @abstractmethod
+    def build_command(self):
+        pass
 
     def do_path(self, args):
         if len(args) != 1:

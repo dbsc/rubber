@@ -10,7 +10,7 @@ building a LaTeX document from start to finish.
 """
 
 import importlib
-import os, os.path, sys
+import os, os.path
 import re
 import logging
 msg = logging.getLogger(__name__)
@@ -240,7 +240,7 @@ class LogCheck(object):
         page = 1
         parsing = 0  # 1 if we are parsing an error's text
         skipping = 0  # 1 if we are skipping text until an empty line
-        something = 0  # 1 if some error was found
+        error = 0  # 1 if some error was found
         prefix = None  # the prefix for warning messages from packages
         accu = ""  # accumulated text from the previous line
         macro = None  # the macro in which the error occurs
@@ -344,9 +344,13 @@ class LogCheck(object):
 
             # Long warnings
 
+            # TODO: The 'prefix' related codepart should have never
+            # worked, because prefix is not set anyware to not None.
+            text = ""
+            info = {}
             if prefix is not None:
                 if line[:len(prefix)] == prefix:
-                    text.append(line[len(prefix):].strip())
+                    text = line[len(prefix):].strip()
                 else:
                     text = " ".join(text)
                     m = re_online.search(text)
@@ -636,8 +640,7 @@ class LaTeXDep(rubber.depend.Node):
             self.env.path.append(src_path)
 
         if '"' in path:
-            msg.error(_("The filename contains \", latex cannot handle this."))
-            return 1
+            raise ValueError(_("The filename contains \", latex cannot handle this."))
         if any(c in path for c in " \n\t()"):
             msg.warning(_("Source path uses special characters, error tracking might get confused."))
 
@@ -654,7 +657,7 @@ class LaTeXDep(rubber.depend.Node):
     def register_post_processor(self, old_suffix, new_suffix):
         if self.env.final != self \
            and not self.primary_product ().endswith (old_suffix):
-            raise GenericError(_("there is already a post-processor registered"))
+            raise rubber.GenericError(_("there is already a post-processor registered"))
         self.replace_product(self.basename(with_suffix=new_suffix))
 
     def new_aux_file(self, aux_file):
@@ -898,7 +901,7 @@ class LaTeXDep(rubber.depend.Node):
 
     def do_rules(self, args):
         if len(args) != 1:
-            raise rubber.SyntaxError(rubber.util._format(self.vars, _("invalid syntax for directive '%s'") % cmd))
+            raise rubber.SyntaxError(rubber.util._format(self.vars, _("invalid syntax for directive '%s'") % args))
         file = args[0]
         name = self.env.find_file(file)
         if name is None:
@@ -908,7 +911,7 @@ class LaTeXDep(rubber.depend.Node):
 
     def do_set(self, args):
         if len(args) != 2:
-            raise rubber.SyntaxError(rubber.util._format(self.vars, _("invalid syntax for directive '%s'") % cmd))
+            raise rubber.SyntaxError(rubber.util._format(self.vars, _("invalid syntax for directive '%s'") % args))
         name, val = args
         if name in ('arguments',):
             msg.warning(_("cannot set list-type variable to scalar: set %s %s (ignored; use setlist, not set)") % (name, val))
@@ -934,17 +937,17 @@ class LaTeXDep(rubber.depend.Node):
 
     def do_shell_escape(self, args):
         if len(args) != 0:
-            raise rubber.SyntaxError(rubber.util._format(self.vars, _("invalid syntax for directive '%s'") % cmd))
+            raise rubber.SyntaxError(rubber.util._format(self.vars, _("invalid syntax for directive '%s'") % args))
         self.env.doc_requires_shell_ = True
 
     def do_synctex(self, args):
         if len(args) != 0:
-            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % cmd)
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % args)
         self.env.synctex = True
 
     def do_setlist(self, args):
         if len(args) == 0:
-            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % cmd)
+            raise rubber.SyntaxError(_("invalid syntax for directive '%s'") % args)
         name, val = args[0], args[1:]
         if name in ('arguments',):
             self.arguments.extend(val)

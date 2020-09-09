@@ -76,6 +76,8 @@ class MPLogCheck(rubber.converters.latex.LogCheck):
 
             # a TeX error was found: parse mpxerr.log
 
+            # TODO: Remove pylint suppression.
+            # pylint: disable=no-member
             log = rubber.converter.latex.LogCheck()
             # FIXME this path has no testcase.
             if not log.readlog(os.path.join(self.pwd, "mpxerr.log"), metapost_logfile_limit):

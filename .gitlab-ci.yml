@@ -18,4 +18,8 @@ test:
       ./run.sh --debchroot *
 
 lint:
-  script: make lint
+  script:
+    - apt-get install -y -t testing python3-pyflakes
+    - rm -f /usr/bin/pyflakes
+    - ln /usr/bin/pyflakes3 /usr/bin/pyflakes
+    - make lint

@@ -8,7 +8,6 @@ building process.
 """
 
 import os.path
-import re
 
 from rubber.util import _
 import logging
@@ -100,6 +99,10 @@ class Environment:
 
             ans = self.converter.best_rule(t, check=do_check, context=context)
             if ans is not None:
+                # TODO: I think the suppressed-in-the-following-line
+                # pylint error is a false positive. Check if this is
+                # correct.
+                # pylint: disable=unsubscriptable-object
                 if last is None or ans["cost"] < last["cost"]:
                     last = ans
 

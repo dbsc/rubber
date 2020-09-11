@@ -19,6 +19,10 @@ import distutils.log
 import distutils.util
 import os.path
 import re
+import subprocess
+import sys
+
+project_root_dir = os.path.dirname(__file__)
 
 # A file f is generated from f.in by replacing @author@, @version@ by
 # sensible values (as ./configure does in the autoconf world).
@@ -207,7 +211,23 @@ def extract_version():
             if line.startswith("Version"):
                 break
     match = re.match(r'^Version ([0-9.]+) ', line)
-    return match.group(1)
+    version = match.group(1)
+
+    git_dir = os.path.join(project_root_dir, '.git')
+    if os.path.exists(git_dir):
+        try:
+            result = subprocess.Popen(['git', '--git-dir', git_dir, 'describe'],
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.DEVNULL)
+            result.wait()
+            git_describe_output = result.stdout.read().decode('utf-8').strip()
+            if git_describe_output != version:
+                version += " (" + git_describe_output + ")"
+        except:
+            # We warn about, but otherwise ignore exceptions here.
+            print(f"Exception during 'git' invocation {sys.exc_info()[0]}", file=sys.stderr)
+
+    return version
 
 
 distutils.core.setup(

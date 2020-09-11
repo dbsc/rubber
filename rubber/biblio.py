@@ -1,4 +1,4 @@
-# This file is part of Rubber and thus covered by the GPL
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Sebastian Kapfer <sebastian.kapfer@fau.de> 2015.
 # based on code by Sebastian Reichel and others.
 # vim: noet:ts=4

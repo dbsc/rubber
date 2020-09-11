@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
 # vim: et:ts=4
 #
 # This is the setup script for Rubber. It acts both as a part of the
 # configuration script a la autoconf and as a setup script a la Distutils.
 #
-# As the rest of Rubber, this script is covered by the GPL (see COPYING).
 # Copyright 2002-2006 Emmanuel Beffara
 # Copyright 2015-2015 Sebastian Kapfer
 # Copyright 2015-2015 Nicolas Boulenguez

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """
 This module contains code for file conversion, including implicit conversion
 rule management.

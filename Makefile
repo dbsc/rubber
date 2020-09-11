@@ -1,4 +1,4 @@
-.PHONY: build check format lint pyflakes pylint test yapf
+.PHONY: build check check-license format lint pyflakes pylint test yapf
 
 MODULES_AND_PACKAGES := setup.py rubber bin
 
@@ -7,10 +7,13 @@ build:
 
 check: lint test
 
+check-license:
+	./tools/check-license
+
 format:
 	yapf --in-place --recursive --parallel .
 
-lint: pyflakes pylint yapf
+lint: pyflakes pylint yapf check-license
 
 pyflakes:
 	pyflakes $(MODULES_AND_PACKAGES)

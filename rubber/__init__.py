@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 # These exceptions are caught by cmdline.py,
 # which selects an exit status accordingly.
 

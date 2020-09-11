@@ -1,4 +1,4 @@
-# This file is part of Rubber and thus covered by the GPL
+# SPDX-License-Identifier: GPL-3.0-or-later
 # (c) Nicolas Boulenguez 2015
 """
 Compressing the output of Rubber.

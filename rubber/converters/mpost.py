@@ -1,5 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 # vim: noet:ts=4
-# This file is covered by the GPL as part of Rubber.
 # (c) Emmanuel Beffara, 2002--2006
 """
 Metapost support for Rubber.

@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Pretty fancy method to get reliable the absolute path of a shell
+# script, *even if it is sourced*. Credits go to GreenFox on
+# stackoverflow: http://stackoverflow.com/a/12197518/194894
+pushd . > /dev/null
+SCRIPTDIR="${BASH_SOURCE[0]}";
+while([ -h "${SCRIPTDIR}" ]); do
+    cd "`dirname "${SCRIPTDIR}"`"
+    SCRIPTDIR="$(readlink "`basename "${SCRIPTDIR}"`")";
+done
+cd "`dirname "${SCRIPTDIR}"`" > /dev/null
+SCRIPTDIR="`pwd`";
+popd  > /dev/null
+
+while getopts :d OPT; do
+	case $OPT in
+		d)
+			set -x
+			;;
+		*)
+			echo "usage: ${0##*/} [-d]"
+			exit 2
+	esac
+done
+shift $(( OPTIND - 1 ))
+OPTIND=1
+
+export ROOTDIR
+ROOTDIR=$(readlink -f "${SCRIPTDIR}/..")
+
+export CHECKED_FILES_FILE
+CHECKED_FILES_FILE=$(mktemp)
+trap 'rm "${CHECKED_FILES_FILE}"' EXIT
+
+# Safely call bash function from xargs
+# https://stackoverflow.com/questions/11003418/calling-shell-functions-with-xargs/11003457#11003457
+check_license() {
+	local license_identifier="# SPDX-License-Identifier: GPL-3.0-or-later"
+	local sed_cmd="{N; /^${license_identifier}\n/!{q1}}"
+
+	local full_path="${ROOTDIR}/${1}"
+	if ! head --lines=3 "${full_path}" |\
+			sed --regexp-extended --quiet "${sed_cmd}" >/dev/null
+	then
+		echo "$1": missing or invalid license header
+		return 1
+	fi
+
+	echo -e "${1}\0" >> "${CHECKED_FILES_FILE}"
+}
+export -f check_license
+
+
+MAX_PROCS=$(nproc)
+
+cd "${ROOTDIR}"
+find . \( -path '*/\.*' -o -path "./build*" -o -path "./bin/*" \) -prune -o \
+	-type f -regextype posix-extended -regex '.*\.(py)' -print0 |\
+	xargs --null --max-args=1 --max-procs="${MAX_PROCS}" -I {} \
+		  bash -c 'check_license "$@"' _ "{}"
+
+FILE_COUNT=$(<"${CHECKED_FILES_FILE}" tr -cd '\0' | wc -c)
+echo "Checked ${FILE_COUNT} files for license headers"
+

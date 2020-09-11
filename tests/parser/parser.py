@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 # vim: noet:ts=4
 from rubber.tex import *
 import unittest

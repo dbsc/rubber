@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 # module_interface.py, part of Rubber building system for LaTeX documents..
 
 # Copyright (C) 2015-2015 Nicolas Boulenguez <nicolas.boulenguez@free.fr>

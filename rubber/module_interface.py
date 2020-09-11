@@ -26,16 +26,15 @@ rubber.converters.latex also declares a subclass that is instantiated
 each time a .rub file is read.
 """
 
-import abc
+from abc import ABC
+
 from rubber.util import _
 import logging
 msg = logging.getLogger(__name__)
 import rubber.util
 
 
-class Module:
-    # This class may not be instantiated directly, only subclassed.
-    __metaclass__ = abc.ABCMeta
+class Module(ABC):
     """
     This is the base class for modules. Each module should define a class
     named 'Module' that derives from this one. The default implementation

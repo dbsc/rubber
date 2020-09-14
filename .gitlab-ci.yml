@@ -1,11 +1,7 @@
 image: "flowdalic/debian-dev:1.8"
 
-before_script:
-  - apt update
-
 build:
   script:
-    - apt-get install -y texinfo
     - make build
 
 test:

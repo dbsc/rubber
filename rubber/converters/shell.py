@@ -1,4 +1,4 @@
-# This file is covered by the GPL as part of Rubber.
+# SPDX-License-Identifier: GPL-3.0-or-later
 # (c) Emmanuel Beffara, 2005
 """
 Generic shell conversion rule.

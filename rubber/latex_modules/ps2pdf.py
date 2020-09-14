@@ -1,5 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 # vim: et:ts=4
-# This file is part of Rubber and thus covered by the GPL
 # (c) Emmanuel Beffara, 2004--2006
 """
 PostScript to PDF conversion using GhostScript.

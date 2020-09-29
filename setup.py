@@ -263,6 +263,7 @@ Metapost compilation).\
     scripts=(
         "bin/rubber",
         "bin/rubber-info",
+        "bin/rubber-lsmod",
         "bin/rubber-pipe",
     ),
     cmdclass={

@@ -11,7 +11,10 @@ import logging
 msg = logging.getLogger(__name__)
 import re
 from string import whitespace
+import pkgutil
 import subprocess
+
+import rubber.latex_modules
 
 #-- Message writers --{{{1
 
@@ -332,3 +335,13 @@ def execute(prog, env={}, pwd=None, out=None):
     ret = process.wait()
     msg.debug(_("process %d (%s) returned %d") % (process.pid, prog[0], ret))
     return ret
+
+
+def iter_rubber_modules():
+    package = rubber.latex_modules
+    prefix = package.__name__ + "."
+
+    for _, modname, _ in pkgutil.iter_modules(package.__path__, prefix):
+        modname_components = modname.split(".")
+        last_component = modname_components[-1]
+        yield last_component

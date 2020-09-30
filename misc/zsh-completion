@@ -3,19 +3,9 @@
 # Original by Emmanuel Hainry <Emmanuel.Hainry@loria.fr>
 # Updated by Emmanuel Beffara <manu@beffara.org>
 
-local _rubber_version _rubber_path _rubber_modules
+local _rubber_modules
 
-eval $(rubber --version | sed 's/^.* \([^ ]*\): */_rubber_\1=/')
-if [[ ${_rubber_version#0} != $_rubber_version ]]; then
-  _rubber_modules=(
-    $(ls $_rubber_path/rubber/modules | sed -n 's/^\([^_].*\)\.py$/\1/p')
-  )
-else
-  _rubber_modules=(
-    $(ls $_rubber_path/modules | sed -n 's/.rub$//p')
-    $(ls $_rubber_path/rubber/rules/latex | sed -n 's/^\([^_].*\)\.py$/\1/p')
-  )
-fi
+_rubber_modules=$(rubber-lsmod)
 
 _rubber_arguments () {
     _arguments -s \

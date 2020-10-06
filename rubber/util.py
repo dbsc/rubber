@@ -319,23 +319,23 @@ def execute(prog, env={}, pwd=None, out=None):
     for (key, val) in env.items():
         penv[key] = val
 
-    process = subprocess.Popen(prog,
-                               executable=progname,
-                               env=penv,
-                               cwd=pwd,
-                               stdin=subprocess.DEVNULL,
-                               stdout=subprocess.PIPE,
-                               stderr=None)
+    with subprocess.Popen(prog,
+                          executable=progname,
+                          env=penv,
+                          cwd=pwd,
+                          stdin=subprocess.DEVNULL,
+                          stdout=subprocess.PIPE,
+                          stderr=None) as process:
 
-    if out is not None:
-        for line in process.stdout:
-            out(line)
-    else:
-        process.stdout.readlines()
+        if out is not None:
+            for line in process.stdout:
+                out(line)
+        else:
+            process.stdout.readlines()
 
-    ret = process.wait()
-    msg.debug(_("process %d (%s) returned %d") % (process.pid, prog[0], ret))
-    return ret
+        ret = process.wait()
+        msg.debug(_("process %d (%s) returned %d") % (process.pid, prog[0], ret))
+        return ret
 
 
 def iter_rubber_modules():

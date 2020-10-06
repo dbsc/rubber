@@ -4,7 +4,8 @@ This module contains code for file conversion, including implicit conversion
 rule management.
 """
 
-import re, imp, os.path
+import re, os.path
+import importlib
 from configparser import ConfigParser, ParsingError, NoOptionError
 import logging
 
@@ -159,12 +160,15 @@ class Converter(object):
         """
         if name in self.modules:
             return self.modules[name] is not None
-        try:
-            answer = imp.find_module(name, rubber.converters.__path__)
-        except ImportError:
+
+        spec = importlib.machinery.PathFinder().find_spec(name, rubber.converters.__path__)
+        if spec is None:
             self.modules[name] = None
             return False
-        self.modules[name] = imp.load_module(name, *answer)
+
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.modules[name] = module
         return True
 
     def may_produce(self, name):

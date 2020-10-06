@@ -1,7 +1,7 @@
 # this rubber run should fail, an invalid bibtex database being included.
-if $python ../rubber.py $VERBOSE doc 2> tmp; then
+if $PYTHON ../rubber.py $VERBOSE doc 2> tmp; then
     cat tmp
     exit 1
 fi
 rm tmp
-$python ../rubber.py $VERBOSE doc --clean
+$PYTHON ../rubber.py $VERBOSE doc --clean

@@ -1,5 +1,5 @@
-$python ../rubber.py $VERBOSE doc.tex
+$PYTHON ../rubber.py $VERBOSE doc.tex
 status=0
 grep fig2dev-path figure.eps || status=$?
 test $status = 1                # No match.
-$python ../rubber.py $VERBOSE doc.tex --clean
+$PYTHON ../rubber.py $VERBOSE doc.tex --clean

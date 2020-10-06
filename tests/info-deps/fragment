@@ -1,7 +1,7 @@
-$python ../rubber.py $VERBOSE -d doc.tex
+$PYTHON ../rubber.py $VERBOSE -d doc.tex
 # the result depends on the verbosity level.
 
-$python ../rubber-info.py $VERBOSE --deps doc > stdout
+$PYTHON ../rubber-info.py $VERBOSE --deps doc > stdout
 
 case `wc -w < stdout` in
     2|24|38)
@@ -13,4 +13,4 @@ case `wc -w < stdout` in
         ;;
 esac
 rm stdout
-$python ../rubber.py $VERBOSE -d --clean doc
+$PYTHON ../rubber.py $VERBOSE -d --clean doc

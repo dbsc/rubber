@@ -1,5 +1,5 @@
 LOGFILE=$(mktemp)
-$python ../rubber.py $VERBOSE doc |& tee "${LOGFILE}"
+$PYTHON ../rubber.py $VERBOSE doc |& tee "${LOGFILE}"
 
 # syntax error in metapost; rubber should parse the logfile and report the location.
 EXPECTED_ERROR="metapost.mp:3"
@@ -9,4 +9,4 @@ if ! grep -qF "${EXPECTED_ERROR}" "${LOGFILE}"; then
 fi
 rm "${LOGFILE}"
 
-$python ../rubber.py $VERBOSE --clean doc
+$PYTHON ../rubber.py $VERBOSE --clean doc

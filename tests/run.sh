@@ -35,7 +35,7 @@ done
 SOURCE_DIR="$(cd ..; pwd)"
 printf -v DATE '%(%Y%m%d)T' -1
 tmpdir=$(mktemp --tmpdir="/var/tmp" --directory "rubber-${DATE}-XXXXXX")
-python=python3
+readonly PYTHON="python3 -W error -X dev"
 
 echo "When a test fails, please remove the $tmpdir directory manually."
 
@@ -84,8 +84,8 @@ for main; do
         . ./fragment
     else
         # default test code:  try to build two times, clean up.
-        echo "Running $python ../rubber.py $VERBOSE $arguments $doc ..."
-        $python ../rubber.py $VERBOSE $arguments "$doc"
+        echo "Running $PYTHON ../rubber.py $VERBOSE $arguments $doc ..."
+        $PYTHON ../rubber.py $VERBOSE $arguments "$doc"
     fi
 
     ([ -r expected ] && cat expected ) | while read f; do
@@ -97,8 +97,8 @@ for main; do
 
     if ! [ -e fragment ]; then
         # default test code:  try to build two times, clean up.
-        $python ../rubber.py $VERBOSE $arguments         "$doc"
-        $python ../rubber.py $VERBOSE $arguments --clean "$doc"
+        $PYTHON ../rubber.py $VERBOSE $arguments         "$doc"
+        $PYTHON ../rubber.py $VERBOSE $arguments --clean "$doc"
     fi
 
     unset doc arguments

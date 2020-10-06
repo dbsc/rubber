@@ -466,7 +466,7 @@ class LogCheck(object):
             if line[m.start()] == '(':
                 last = m.group("file")
                 stack.append(last)
-            else:
+            elif stack:
                 last = stack.pop()
             line = line[m.end():]
 

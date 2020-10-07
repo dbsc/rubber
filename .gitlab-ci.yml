@@ -1,4 +1,4 @@
-image: "flowdalic/debian-dev:1.8"
+image: "flowdalic/debian-dev:1.10"
 
 build:
   script:

@@ -22,7 +22,7 @@ while [ 1 -le $# ]; do
                 python3-prompt-toolkit python3-pygments r-cran-knitr \
                 texlive-bibtex-extra texlive-binaries texlive-extra-utils \
                 texlive-latex-extra texlive-latex-recommended \
-                texlive-metapost texlive-omega texlive-pictures transfig
+                texlive-metapost texlive-pictures transfig
             # combine is not packaged for Debian.
             touch combine/disable
             ;;

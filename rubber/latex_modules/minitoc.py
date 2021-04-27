@@ -14,6 +14,7 @@ the produced files is quite complex (see shortext option for example).
 
 import os.path
 import logging
+
 msg = logging.getLogger(__name__)
 from rubber.util import _
 import rubber.module_interface

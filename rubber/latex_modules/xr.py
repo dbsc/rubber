@@ -10,6 +10,7 @@ file, so this support package registers these files as dependencies.
 
 from rubber.util import _
 import logging
+
 msg = logging.getLogger(__name__)
 import rubber.module_interface
 

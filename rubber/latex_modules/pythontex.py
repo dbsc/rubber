@@ -8,6 +8,7 @@ pythontex support for Rubber
 
 from rubber.util import _
 import logging
+
 msg = logging.getLogger(__name__)
 import os.path
 import shutil

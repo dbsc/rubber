@@ -12,6 +12,7 @@ import os, os.path
 import re
 
 import logging
+
 msg = logging.getLogger(__name__)
 from rubber.util import _, prog_available
 import rubber.depend

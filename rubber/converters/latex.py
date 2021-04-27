@@ -13,6 +13,7 @@ import importlib
 import os, os.path
 import re
 import logging
+
 msg = logging.getLogger(__name__)
 import rubber.util
 from rubber.util import _, parse_line

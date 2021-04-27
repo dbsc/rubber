@@ -7,6 +7,7 @@ Common support for makeindex and xindy external tools.
 
 import os
 import logging
+
 msg = logging.getLogger(__name__)
 import rubber.depend
 from rubber.util import _

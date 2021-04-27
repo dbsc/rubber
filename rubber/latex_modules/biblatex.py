@@ -7,6 +7,7 @@ BibLaTeX support for Rubber
 """
 
 import logging
+
 msg = logging.getLogger(__name__)
 from rubber.util import _
 import rubber.util

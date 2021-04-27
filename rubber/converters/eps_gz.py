@@ -5,6 +5,7 @@ Extraction of bounding box information from gzipped PostScript figures.
 """
 
 import logging
+
 msg = logging.getLogger(__name__)
 from rubber.util import _
 import rubber.depend

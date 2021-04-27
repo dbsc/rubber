@@ -8,6 +8,7 @@ Bibliographies (Biber and BibTeX).
 
 from rubber.util import _
 import logging
+
 msg = logging.getLogger(__name__)
 import rubber.util
 import rubber.depend

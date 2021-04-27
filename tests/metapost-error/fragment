@@ -1,6 +1,12 @@
+LOGFILE=$(mktemp)
+$python ../rubber.py $VERBOSE doc |& tee "${LOGFILE}"
+
 # syntax error in metapost; rubber should parse the logfile and report the location.
-$python ../rubber.py $VERBOSE doc 2>&1 | grep -q metapost.mp:3 || {
-    echo expected error message not reported by Rubber
-    false
-}
+EXPECTED_ERROR="metapost.mp:3"
+if ! grep -qF "${EXPECTED_ERROR}" "${LOGFILE}"; then
+    echo ERROR: expected error message \"${EXPECTED_ERROR}\" not reported by Rubber
+    exit 1
+fi
+rm "${LOGFILE}"
+
 $python ../rubber.py $VERBOSE --clean doc

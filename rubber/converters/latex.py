@@ -130,21 +130,22 @@ class Modules:
 
 #----  Log parser  ----{{{1
 
-re_loghead = re.compile("This is [0-9a-zA-Z-]*")
-re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
+re_loghead = re.compile(r"This is [0-9a-zA-Z-]*")
+re_file = re.compile(r"(\((?P<file>[^ \n\t(){}]*)|\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
 re_rawbox = re.compile(r'^\\[hv]box\(')
 re_line = re.compile(r"(l\.(?P<line>[0-9]+)( (?P<code>.*))?$|<\*>)")
 re_cseq = re.compile(r".*(?P<seq>(\\|\.\.\.)[^ ]*) ?$")
 re_macro = re.compile(r"^(?P<macro>\\.*) ->")
-re_page = re.compile("\[(?P<num>[0-9]+)\]")
-re_atline = re.compile("( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
-re_reference = re.compile("LaTeX Warning: Reference `(?P<ref>.*)' \
+re_page = re.compile(r"[\(?P<num>[0-9]+\)]")
+re_atline = re.compile(
+    r"( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
+re_reference = re.compile(r"LaTeX Warning: Reference `(?P<ref>.*)' \
 on page (?P<page>[0-9]*) undefined on input line (?P<line>[0-9]*)\\.$")
-re_label = re.compile("LaTeX Warning: (?P<text>Label .*)$")
-re_warning = re.compile("(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<text>.*)$")
-re_online = re.compile("(; reported)? on input line (?P<line>[0-9]*)")
-re_ignored = re.compile("; all text was ignored after line (?P<line>[0-9]*).$")
+re_label = re.compile(r"LaTeX Warning: (?P<text>Label .*)$")
+re_warning = re.compile(r"(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<text>.*)$")
+re_online = re.compile(r"(; reported)? on input line (?P<line>[0-9]*)")
+re_ignored = re.compile(r"; all text was ignored after line (?P<line>[0-9]*).$")
 
 
 class LogCheck(object):
@@ -485,7 +486,7 @@ class LogCheck(object):
 
 #----  Parsing and compiling  ----{{{1
 
-re_command = re.compile("%[% ]*rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*).*")
+re_command = re.compile(r"%[% ]*rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*).*")
 
 
 class SourceParser(rubber.tex.Parser):

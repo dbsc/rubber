@@ -303,10 +303,11 @@ class LogCheck(object):
                             if "code" in d:
                                 del d["code"]
                             d.update(m.groupdict())
-                        elif pos[-1] is None:
-                            d["file"] = last_file
-                        else:
-                            d["file"] = pos[-1]
+                        elif pos:
+                            if pos[-1] is None:
+                                d["file"] = last_file
+                            else:
+                                d["file"] = pos[-1]
                         if macro is not None:
                             d["macro"] = macro
                             macro = None
@@ -322,7 +323,7 @@ class LogCheck(object):
                     parsing = 0
                     skipping = 0
                     if errors:
-                        yield {"kind": "error", "text": error, "file": pos[-1]}
+                        yield {"kind": "error", "text": error, "file": pos[-1] if pos else None}
                 continue
 
             if line.startswith('!'):
@@ -374,7 +375,7 @@ class LogCheck(object):
                     d = {
                         "kind": "warning",
                         "text": _("Reference `%s' undefined.") % m.group("ref"),
-                        "file": pos[-1]
+                        "file": pos[-1] if pos else None
                     }
                     d.update(m.groupdict())
                     yield d
@@ -383,7 +384,7 @@ class LogCheck(object):
             m = re_label.match(line)
             if m:
                 if refs:
-                    d = {"kind": "warning", "file": pos[-1]}
+                    d = {"kind": "warning", "file": pos[-1] if pos else None}
                     d.update(m.groupdict())
                     yield d
                 continue
@@ -394,7 +395,7 @@ class LogCheck(object):
                 m = re_warning.match(line)
                 if m:
                     info = m.groupdict()
-                    info["file"] = pos[-1]
+                    info["file"] = pos[-1] if pos else None
                     info["page"] = page
                     if info["pkg"] is None:
                         del info["pkg"]
@@ -410,7 +411,7 @@ class LogCheck(object):
             m = re_badbox.match(line)
             if m:
                 if boxes:
-                    mpos = {"file": pos[-1], "page": page}
+                    mpos = {"file": pos[-1] if pos else None, "page": page}
                     m = re_atline.search(line)
                     if m:
                         md = m.groupdict()

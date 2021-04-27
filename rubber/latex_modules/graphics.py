@@ -18,6 +18,7 @@ incomplete, because \\includegraphics can have a complex format.
 import os, os.path
 import re
 import logging
+
 msg = logging.getLogger(__name__)
 import rubber.depend
 from rubber.util import _

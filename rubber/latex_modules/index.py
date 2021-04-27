@@ -41,6 +41,7 @@ occur.
 
 import re
 import logging
+
 msg = logging.getLogger(__name__)
 from rubber.index import Index
 from rubber.util import _

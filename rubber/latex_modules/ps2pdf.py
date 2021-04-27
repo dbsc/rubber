@@ -8,6 +8,7 @@ PostScript to PDF conversion using GhostScript.
 from rubber.depend import Shell
 from rubber.util import _
 import logging
+
 msg = logging.getLogger(__name__)
 import rubber.module_interface
 

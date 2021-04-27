@@ -14,6 +14,7 @@ instance), then "odvips" is used instead of "dvips".
 
 from rubber.util import _
 import logging
+
 msg = logging.getLogger(__name__)
 import rubber.converters
 import rubber.depend

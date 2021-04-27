@@ -5,6 +5,7 @@ This module contains code for handling dependency graphs.
 # vim: noet:ts=4
 
 import logging
+
 msg = logging.getLogger(__name__)
 import os.path
 import subprocess

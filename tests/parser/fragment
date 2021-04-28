@@ -1,1 +1,1 @@
-PYTHONPATH=.. $python parser.py
+PYTHONPATH=.. $PYTHON parser.py

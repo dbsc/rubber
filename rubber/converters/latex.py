@@ -130,21 +130,22 @@ class Modules:
 
 #----  Log parser  ----{{{1
 
-re_loghead = re.compile("This is [0-9a-zA-Z-]*")
-re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
+re_loghead = re.compile(r"This is [0-9a-zA-Z-]*")
+re_file = re.compile(r"(\((?P<file>[^ \n\t(){}]*)|\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
 re_rawbox = re.compile(r'^\\[hv]box\(')
 re_line = re.compile(r"(l\.(?P<line>[0-9]+)( (?P<code>.*))?$|<\*>)")
 re_cseq = re.compile(r".*(?P<seq>(\\|\.\.\.)[^ ]*) ?$")
 re_macro = re.compile(r"^(?P<macro>\\.*) ->")
-re_page = re.compile("\[(?P<num>[0-9]+)\]")
-re_atline = re.compile("( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
-re_reference = re.compile("LaTeX Warning: Reference `(?P<ref>.*)' \
+re_page = re.compile(r"[\(?P<num>[0-9]+\)]")
+re_atline = re.compile(
+    r"( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
+re_reference = re.compile(r"LaTeX Warning: Reference `(?P<ref>.*)' \
 on page (?P<page>[0-9]*) undefined on input line (?P<line>[0-9]*)\\.$")
-re_label = re.compile("LaTeX Warning: (?P<text>Label .*)$")
-re_warning = re.compile("(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<text>.*)$")
-re_online = re.compile("(; reported)? on input line (?P<line>[0-9]*)")
-re_ignored = re.compile("; all text was ignored after line (?P<line>[0-9]*).$")
+re_label = re.compile(r"LaTeX Warning: (?P<text>Label .*)$")
+re_warning = re.compile(r"(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<text>.*)$")
+re_online = re.compile(r"(; reported)? on input line (?P<line>[0-9]*)")
+re_ignored = re.compile(r"; all text was ignored after line (?P<line>[0-9]*).$")
 
 
 class LogCheck(object):
@@ -303,10 +304,11 @@ class LogCheck(object):
                             if "code" in d:
                                 del d["code"]
                             d.update(m.groupdict())
-                        elif pos[-1] is None:
-                            d["file"] = last_file
-                        else:
-                            d["file"] = pos[-1]
+                        elif pos:
+                            if pos[-1] is None:
+                                d["file"] = last_file
+                            else:
+                                d["file"] = pos[-1]
                         if macro is not None:
                             d["macro"] = macro
                             macro = None
@@ -322,7 +324,7 @@ class LogCheck(object):
                     parsing = 0
                     skipping = 0
                     if errors:
-                        yield {"kind": "error", "text": error, "file": pos[-1]}
+                        yield {"kind": "error", "text": error, "file": pos[-1] if pos else None}
                 continue
 
             if line.startswith('!'):
@@ -374,7 +376,7 @@ class LogCheck(object):
                     d = {
                         "kind": "warning",
                         "text": _("Reference `%s' undefined.") % m.group("ref"),
-                        "file": pos[-1]
+                        "file": pos[-1] if pos else None
                     }
                     d.update(m.groupdict())
                     yield d
@@ -383,7 +385,7 @@ class LogCheck(object):
             m = re_label.match(line)
             if m:
                 if refs:
-                    d = {"kind": "warning", "file": pos[-1]}
+                    d = {"kind": "warning", "file": pos[-1] if pos else None}
                     d.update(m.groupdict())
                     yield d
                 continue
@@ -394,7 +396,7 @@ class LogCheck(object):
                 m = re_warning.match(line)
                 if m:
                     info = m.groupdict()
-                    info["file"] = pos[-1]
+                    info["file"] = pos[-1] if pos else None
                     info["page"] = page
                     if info["pkg"] is None:
                         del info["pkg"]
@@ -410,7 +412,7 @@ class LogCheck(object):
             m = re_badbox.match(line)
             if m:
                 if boxes:
-                    mpos = {"file": pos[-1], "page": page}
+                    mpos = {"file": pos[-1] if pos else None, "page": page}
                     m = re_atline.search(line)
                     if m:
                         md = m.groupdict()
@@ -466,7 +468,7 @@ class LogCheck(object):
             if line[m.start()] == '(':
                 last = m.group("file")
                 stack.append(last)
-            else:
+            elif stack:
                 last = stack.pop()
             line = line[m.end():]
 
@@ -484,7 +486,7 @@ class LogCheck(object):
 
 #----  Parsing and compiling  ----{{{1
 
-re_command = re.compile("%[% ]*rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*).*")
+re_command = re.compile(r"%[% ]*rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*).*")
 
 
 class SourceParser(rubber.tex.Parser):

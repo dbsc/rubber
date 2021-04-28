@@ -1,5 +1,5 @@
 gzip -c sample.eps > compressed.eps.gz
-$python ../rubber.py $VERBOSE doc
-$python ../rubber.py $VERBOSE doc
-$python ../rubber.py $VERBOSE --clean doc
+$PYTHON ../rubber.py $VERBOSE doc
+$PYTHON ../rubber.py $VERBOSE doc
+$PYTHON ../rubber.py $VERBOSE --clean doc
 rm -f compressed.eps.gz

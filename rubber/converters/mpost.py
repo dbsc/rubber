@@ -25,7 +25,7 @@ def check(source, target, context):
     return prog_available('mpost')
 
 
-re_input = re.compile("input\\s+(?P<file>[^\\s;]+)")
+re_input = re.compile(r"input\s+(?P<file>[^\s;]+)")
 # This is very restrictive, and so is the parsing routine. FIXME?
 re_mpext = re.compile("[0-9]+|mpx|log")
 re_mpxerr = re.compile("% line (?P<line>[0-9]+) (?P<file>.*)$")

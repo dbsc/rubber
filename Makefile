@@ -26,3 +26,8 @@ yapf:
 
 test:
 	(cd tests && ./run.sh *)
+
+.PHONY: gitlab-runner
+gitlab-runner:
+	gitlab-runner exec docker test
+	gitlab-runner exec docker lint

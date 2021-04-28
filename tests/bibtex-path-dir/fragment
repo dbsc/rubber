@@ -1,7 +1,7 @@
 mkdir sub
 mv biblio.bib sub
-$python ../rubber.py $VERBOSE doc.tex
+$PYTHON ../rubber.py $VERBOSE doc.tex
 [ -r doc.bbl ]
-$python ../rubber.py $VERBOSE --clean doc.tex
+$PYTHON ../rubber.py $VERBOSE --clean doc.tex
 mv sub/biblio.bib .
 rmdir sub

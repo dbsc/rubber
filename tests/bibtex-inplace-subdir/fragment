@@ -1,7 +1,7 @@
 mkdir inplace
 mv doc.tex biblio.bib inplace
-$python ../rubber.py $VERBOSE --inplace         inplace/doc.tex
+$PYTHON ../rubber.py $VERBOSE --inplace         inplace/doc.tex
 [ -r inplace/doc.bbl ]
-$python ../rubber.py $VERBOSE --inplace --clean inplace/doc.tex
+$PYTHON ../rubber.py $VERBOSE --inplace --clean inplace/doc.tex
 mv inplace/doc.tex inplace/biblio.bib .
 rmdir inplace

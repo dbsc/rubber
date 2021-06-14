@@ -308,16 +308,19 @@ def parse_opts(command_name):
        and (args.warn_boxes or args.warn_refs or args.warn_misc):
         raise rubber.SyntaxError('incompatible options: --clean and --warn')
 
+    loggingFormat = "%(message)s"
     logLevel = logging.INFO
     if args.verbose:
         logLevel -= 10 * args.verbose
+        if args.verbose > 1:
+            loggingFormat = "%(module)s:%(funcName)s:%(message)s"
     if args.quiet:
         logLevel += 10 * args.quiet
     if logging.ERROR < logLevel:
         logLevel = logging.ERROR
     if logLevel < logging.DEBUG:
         logLevel = logging.DEBUG
-    logging.basicConfig(level=logLevel)
+    logging.basicConfig(level=logLevel, format=loggingFormat)
 
     return args
 

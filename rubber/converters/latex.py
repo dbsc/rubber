@@ -1155,7 +1155,7 @@ class LaTeXDep(rubber.depend.Node):
         Run one LaTeX compilation on the source. Return true on success or
         false if errors occured.
         """
-        msg.info(_("compiling %s"), self.source)
+        msg.info(_("compiling %s"), self.source())
 
         file = self.source()
 

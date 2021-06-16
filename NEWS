@@ -1,5 +1,9 @@
 Upcoming Version
 
+  Nothing so far…
+
+Version 1.6.0 (2021-06-16)
+
   - Add support for LuaTeX via the lualatex module
   - Introduce rubbercache for faster compilations
 

@@ -279,7 +279,7 @@ def parse_opts(command_name):
     class WarnAction(argparse.Action):
 
         def __call__(self, parser, namespace, values, option_string=None):
-            if option_string == 'all':
+            if values == 'all':
                 namespace.warn_boxes = True
                 namespace.warn_misc = True
                 namespace.warn_refs = True

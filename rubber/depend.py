@@ -10,6 +10,9 @@ msg = logging.getLogger(__name__)
 import os.path
 import subprocess
 import rubber.contents
+
+from pathlib import Path
+
 from rubber.util import _
 
 
@@ -241,6 +244,8 @@ class Node(object):
 
                 if self.snapshots is None:
                     msg.debug(_("%s: first attempt or --force, building"), pp)
+                elif not Path(pp).is_file():
+                    msg.debug(f"Primary product {pp} does not exist, building")
                 else:
                     # There has already been a successful build.
                     changed = ','.join(self.sources[i]

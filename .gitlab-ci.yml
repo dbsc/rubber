@@ -1,5 +1,17 @@
 image: "flowdalic/debian-testing-dev:1.12"
 
+before_script:
+  - |
+    readarray TOOLS <<EOF
+    pylint
+    pyflakes
+    yapf
+    EOF
+    for tool in ${TOOLS[@]}; do
+      echo -n "$tool version: "
+      $tool --version
+    done
+
 build:
   script:
     - make build

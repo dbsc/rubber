@@ -630,7 +630,7 @@ class LaTeXDep(rubber.depend.Node):
         self.vars['source'] = path
         (src_path, name) = os.path.split(path)
         # derive jobname, which latex uses as the basename for all output
-        (job, _) = os.path.splitext(name)
+        (job, ext) = os.path.splitext(name)
         if jobname is None:
             self.set_job = 0
         else:
